@@ -1,0 +1,27 @@
+general_config:
+  times: 1
+  model_name: ConvNeXt_attom      # cnn, simplenet, ConvNeXt_base
+  predictor: ConvNeXt_attom
+  algorithm: FedAvg     # FedAvg / FedPer
+  global_rounds: 200
+  optimizer: SGD      # SGD / AdamW / Adam
+  batch_size: 4
+  local_steps: 5
+oulu:
+  dataset: FER/oulu
+  num_clients: 20
+  join_ratio: 1.0
+  # client local training settings
+  local_learning_rate: 0.0005
+BU3DFE:
+  dataset: FER/BU3DFE
+  num_clients: 20
+  join_ratio: 1.0
+ck:
+  dataset: FER/ck
+  num_clients: 20
+  join_ratio: 1.0
+jaffe:
+  dataset: FER/jaffe
+  num_clients: 20
+  join_ratio: 1.0
