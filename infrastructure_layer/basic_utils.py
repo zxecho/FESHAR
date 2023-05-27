@@ -1,6 +1,9 @@
 import pandas as pd
 import json
 import os
+import pickle
+import yaml
+import argparse
 
 
 def mkdir(path):
@@ -26,6 +29,7 @@ def mkdir(path):
         # 如果目录存在则不创建，并提示目录已存在
         # print(path + ' 目录已存在')
         return False
+
 
 # 绘制损失图
 def loss_plot(axs, loss_data, name=None):
@@ -63,3 +67,20 @@ def load_pkl_file(fpt):
     data = pickle.load(pkl_file)
 
     return data
+
+
+# load yaml file
+def load_yaml_file(file_path):
+    with open(file_path, 'r') as f:
+        default_arg = yaml.load(f)
+
+    return default_arg
+
+
+# load yaml to argparse
+def get_config_from_yaml(file_path, args):
+    default_arg = load_yaml_file(file_path)
+    # load config with yaml
+    args.set_defaults(**default_arg)
+
+

@@ -6,8 +6,9 @@ from infrastructure_layer.basic_utils import mkdir
 
 def save_args_config(args):
     result_path = "./results/{}/".format(args.save_folder_name)
+    mkdir(result_path)
     argsDict = args.__dict__
-    with open(os.path.join(result_path, '{}_setting.txt'.format()), 'w') as f:
+    with open(os.path.join(result_path, 'setting.txt'), 'w') as f:
         f.writelines('------------------ start ------------------' + '\n')
         for eachArg, value in argsDict.items():
             f.writelines(eachArg + ' : ' + str(value) + '\n')

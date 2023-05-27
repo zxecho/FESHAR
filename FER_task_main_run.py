@@ -11,10 +11,12 @@ import torch
 # facial expression recognition experiments
 from system_layer.servers.FER_Task.FER_server import FERserver
 from system_layer.servers.FER_Task.FedPer_server import FedPer
+from system_layer.servers.only_local_train import LocalRun
 # 载入模型
 from algo_layer.models.cnn import FedAvgCNN
 from algo_layer.models.fcn import FedAvgMLP
 from algo_layer.models.lightCNN import MySimpleNet as SimpleNeXt
+from algo_layer.models.ConvNeXt_v1 import ConvNeXt
 from algo_layer.models.fcn import LocalModel
 # 配置参数
 from system_layer.configs import args_parser
@@ -34,12 +36,17 @@ def run(args):
         start = time.time()
 
         # 初始化模型
-        if args.model == 'cnn':
+        if args.model_name == 'cnn':
             args.model = FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=5184).to(args.device)
-        elif args.model == 'mlp':
+        elif args.model_name == 'mlp':
             args.model = FedAvgMLP(in_features=13, num_classes=args.num_classes, hidden_dim=128).to(args.device)
-        elif args.model == 'simplenet':
+        elif args.model_name == 'simplenet':
             args.model = SimpleNeXt(classes=6).to(args.device)
+        elif args.model_name == 'ConvNeXt_base':
+            args.model = ConvNeXt(num_classes=args.num_classes, depths=[3, 3, 27, 3], dims=[128, 256, 512, 1024]).to(args.device)
+        elif args.model_name == 'ConvNeXt_attom':
+            args.model = ConvNeXt(num_classes=args.num_classes, depths=[2, 2, 4, 2], dims=[32, 64, 128, 256]).to(args.device)
+
         # 选择算法
         if args.algorithm == 'FedAvg':
             server = FERserver(args, i)
@@ -101,16 +108,33 @@ if __name__ == '__main__':
     with open('./system_layer/configs/ex1_config.yaml', encoding='utf-8') as f:
         data_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
 
+    # general config settings
+    #   times: 1
+    #   model: cnn
+    #   predictor: cnn
+    #   algorithm: FedAvg
+    #   global_rounds: 200
+    #   batch_size: 8
+    #   local_steps: 5
+    general_params = data_configs.pop('general_config')
+    args.times = general_params['times']
+    args.model_name = general_params['model_name']
+    args.predictor = general_params['predictor']
+    args.algorithm = general_params['algorithm']
+    args.global_rounds = general_params['global_rounds']
+    args.optimizer = general_params['optimizer']
+    args.batch_size = general_params['batch_size']
+    args.local_steps = general_params['local_steps']
+
     run_exps_params = data_configs.keys()
     print(run_exps_params)
     for param in run_exps_params:
         args.num_clients = data_configs[param]['num_clients']
-        args.local_steps = data_configs[param]['local_steps']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = 'cnn_{}_FER_{}_exp4'.format(args.algorithm, param)
+        args.save_folder_name = '{}_{}_FER_{}_exp-N1'.format(args.model_name, args.algorithm, param)
 
         # save args
-
+        save_args_config(args)
 
         run(args)
 
