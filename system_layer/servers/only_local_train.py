@@ -35,7 +35,7 @@ class OnlyLocalTrain_server(Server):
 
         for client in self.selected_clients:
             s_t = time.time()
-            self.rs_train_loss, self.rs_test_acc, self.rs_test_acc = client.train()
+            self.rs_train_loss, self.rs_test_acc, self.rs_test_auc = client.train()
 
             self.Budget.append(time.time() - s_t)
             print('-' * 25, 'Clinet {} time cost:{}'.format(client.id, self.Budget[-1]), '-' * 25)

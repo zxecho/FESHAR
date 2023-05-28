@@ -11,9 +11,9 @@ from infrastructure_layer.read_client_data import FER_Dataset
 
 random.seed(1)
 np.random.seed(1)
-num_clients = 20
+num_clients = 10
 num_classes = 6
-dir_path = "FER/BU3DFE/"
+dir_path = "FER/jaffe/"
 
 resize = 48
 cut_size = 44

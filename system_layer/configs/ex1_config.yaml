@@ -23,5 +23,5 @@ ck:
   join_ratio: 1.0
 jaffe:
   dataset: FER/jaffe
-  num_clients: 20
+  num_clients: 10
   join_ratio: 1.0

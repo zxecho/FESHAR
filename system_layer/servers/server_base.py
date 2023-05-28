@@ -163,13 +163,13 @@ class Server(object):
     def save_results(self, **kwargs):
         client_id = None
         if 'client_id' in kwargs.keys():
-            clinet_id = kwargs['client_id']
+            client_id = kwargs['client_id']
         dataset_dir = self.dataset.split('/')
         if len(dataset_dir) > 1:
             dataset = dataset_dir[-1]
         algo = dataset + "_" + self.algorithm
         if client_id is not None:
-            result_path = "./results/{}/client_{}/".format(self.save_folder_name, clinet_id)
+            result_path = "./results/{}/client_{}/".format(self.save_folder_name, client_id)
         else:
             result_path = "./results/{}/".format(self.save_folder_name)
         if not os.path.exists(result_path):
