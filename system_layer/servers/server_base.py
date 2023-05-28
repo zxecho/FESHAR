@@ -160,18 +160,24 @@ class Server(object):
         model_path = os.path.join(model_path, self.algorithm + "_server" + ".pt")
         return os.path.exists(model_path)
 
-    def save_results(self):
+    def save_results(self, **kwargs):
+        client_id = None
+        if 'client_id' in kwargs.keys():
+            clinet_id = kwargs['client_id']
         dataset_dir = self.dataset.split('/')
         if len(dataset_dir) > 1:
             dataset = dataset_dir[-1]
         algo = dataset + "_" + self.algorithm
-        result_path = "./results/{}/".format(self.save_folder_name)
+        if client_id is not None:
+            result_path = "./results/{}/client_{}/".format(self.save_folder_name, clinet_id)
+        else:
+            result_path = "./results/{}/".format(self.save_folder_name)
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
         if len(self.rs_test_acc):
-            algo = algo + "_" + self.goal + "_" + str(self.times)
-            file_path = result_path + "{}.h5".format(algo)
+            save_name = algo + "_" + self.goal + "_" + str(self.times)
+            file_path = result_path + "{}.h5".format(save_name)
             print("File path: " + file_path)
 
             with h5py.File(file_path, 'w') as hf:

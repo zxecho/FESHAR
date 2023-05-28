@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from timm.models.layers import trunc_normal_, DropPath
 from timm.models.registry import register_model
-from model_utils import count_parameters
+from algo_layer.models.model_utils import count_parameters
 
 
 class Block(nn.Module):

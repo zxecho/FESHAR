@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import time
 from system_layer.clients.client_base import Client
+from algo_layer.privacy_protect_utils import initialize_dp, get_dp_params
 
 
 # from algo_layer.privacy import *
@@ -29,6 +30,13 @@ class clientAVG(Client):
         # self.model.to(self.device)
         self.model.train()
 
+        # differential privacy
+        if self.privacy:
+            self.model, self.optimizer, trainloader, privacy_engine = \
+                initialize_dp(self.model, self.optimizer, trainloader, self.dp_sigma)
+
+        start_time = time.time()
+
         max_local_steps = self.local_steps
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
@@ -46,11 +54,7 @@ class clientAVG(Client):
                 output = self.model(x)
                 loss = self.loss(output, y)
                 loss.backward()
-                if self.privacy:
-                    # dp_step(self.optimizer, i, len(trainloader))
-                    pass
-                else:
-                    self.optimizer.step()
+                self.optimizer.step()
 
         # self.model.cpu()
 
@@ -60,3 +64,6 @@ class clientAVG(Client):
         # if self.privacy:
         #     res, DELTA = get_dp_params(self.optimizer)
         #     print(f"Client {self.id}", f"(ε = {res[0]:.2f}, δ = {DELTA}) for α = {res[1]}")
+        if self.privacy:
+            eps, DELTA = get_dp_params(privacy_engine)
+            print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")

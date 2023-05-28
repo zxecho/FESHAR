@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 batch_size = 4
 train_size = 0.75
-least_samples = 6  # batch_size / (1 - train_size)
+least_samples = 16  # batch_size / (1 - train_size)
 alpha = 0.1
 
 

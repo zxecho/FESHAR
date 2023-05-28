@@ -11,7 +11,7 @@ import torch
 # facial expression recognition experiments
 from system_layer.servers.FER_Task.FER_server import FERserver
 from system_layer.servers.FER_Task.FedPer_server import FedPer
-from system_layer.servers.only_local_train import LocalRun
+from system_layer.servers.only_local_train import OnlyLocalTrain_server
 # 载入模型
 from algo_layer.models.cnn import FedAvgCNN
 from algo_layer.models.fcn import FedAvgMLP
@@ -50,6 +50,8 @@ def run(args):
         # 选择算法
         if args.algorithm == 'FedAvg':
             server = FERserver(args, i)
+        elif args.algorithm == 'only_local':
+            server = OnlyLocalTrain_server(args, i)
         elif args.algorithm == "FedPer":
             args.predictor = copy.deepcopy(args.model.head)
             args.model.head = torch.nn.Identity()
@@ -63,14 +65,14 @@ def run(args):
         time_list.append(time.time() - start)
 
     print(f"\nAverage time cost: {round(np.average(time_list), 2)}s.")
-
-    # Global average
-    average_data(dataset=args.dataset,
-                 algorithm=args.algorithm,
-                 goal=args.goal,
-                 save_dir=args.save_folder_name,
-                 times=args.times,
-                 length=args.global_rounds / args.eval_gap + 1)
+    if args.algorithm != 'only_local':
+        # Global average
+        average_data(dataset=args.dataset,
+                     algorithm=args.algorithm,
+                     goal=args.goal,
+                     save_dir=args.save_folder_name,
+                     times=args.times,
+                     length=args.global_rounds / args.eval_gap + 1)
 
     print("All done!")
 
