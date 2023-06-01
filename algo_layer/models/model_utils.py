@@ -11,6 +11,35 @@ from torch.nn.parameter import Parameter
 from timm.models.layers.helpers import to_2tuple
 
 
+# split an original model into a base and a head
+class BaseHeadSplit(nn.Module):
+    def __init__(self, base, head):
+        super(BaseHeadSplit, self).__init__()
+
+        self.base = base
+        self.head = head
+
+    def forward(self, x):
+        out = self.base(x)
+        out = self.head(out)
+
+        return out
+
+
+class LocalModel(nn.Module):
+    def __init__(self, base, predictor):
+        super(LocalModel, self).__init__()
+
+        self.base = base
+        self.predictor = predictor
+
+    def forward(self, x):
+        out = self.base(x)
+        out = self.predictor(out)
+
+        return out
+
+
 class spatial_attention_layer(nn.Module):
     def __init__(self, channel):
         super().__init__()

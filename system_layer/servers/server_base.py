@@ -9,10 +9,13 @@ import random
 from infrastructure_layer.read_client_data import read_client_data
 from infrastructure_layer.plot_data import plot_resutls
 
+from cross_layer.security_monitor import DLG
+
 
 class Server(object):
     def __init__(self, args, times):
         # Set up the main attributes
+        self.args = args
         self.device = args.device
         self.dataset = args.dataset
         self.num_classes = args.num_classes
@@ -56,11 +59,11 @@ class Server(object):
         # logging
         self.logger = args.log
 
-    def set_clients(self, args, clientObj):
+    def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
             train_data = read_client_data(self.dataset, i, is_train=True)
             test_data = read_client_data(self.dataset, i, is_train=False)
-            client = clientObj(args,
+            client = clientObj(self.args,
                                id=i,
                                train_samples=len(train_data),
                                test_samples=len(test_data),
@@ -284,3 +287,42 @@ class Server(object):
             else:
                 raise NotImplementedError
         return True
+
+    def call_dlg(self, R):
+        # items = []
+        cnt = 0
+        psnr_val = 0
+        for cid, client_model in zip(self.uploaded_ids, self.uploaded_models):
+            client_model.eval()
+            origin_grad = []
+            for gp, pp in zip(self.global_model.parameters(), client_model.parameters()):
+                origin_grad.append(gp.data - pp.data)
+
+            target_inputs = []
+            trainloader = self.clients[cid].load_train_data()
+            with torch.no_grad():
+                for i, (x, y) in enumerate(trainloader):
+                    if i >= self.batch_num_per_client:
+                        break
+
+                    if type(x) == type([]):
+                        x[0] = x[0].to(self.device)
+                    else:
+                        x = x.to(self.device)
+                    y = y.to(self.device)
+                    output = client_model(x)
+                    target_inputs.append((x, output))
+
+            d = DLG(client_model, origin_grad, target_inputs)
+            if d is not None:
+                psnr_val += d
+                cnt += 1
+
+            # items.append((client_model, origin_grad, target_inputs))
+
+        if cnt > 0:
+            print('PSNR value is {:.2f} dB'.format(psnr_val / cnt))
+        else:
+            print('PSNR error')
+
+        # self.save_item(items, f'DLG_{R}')

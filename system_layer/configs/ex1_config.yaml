@@ -1,12 +1,19 @@
 general_config:
   times: 1
-  model_name: cnn      # cnn, simplenet, ConvNeXt_base
+  model_name: cnn      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
   predictor: cnn
-  algorithm: only_local     # FedAvg / FedPer
+  algorithm: FedRep     # FedAvg / FedPer / FedProx / ditto / FedRep
   global_rounds: 200
+  # optimization related
   optimizer: SGD      # SGD / AdamW / Adam
   batch_size: 4
-  local_steps: 100
+  local_steps: 5
+  local_per_opt: True
+  lr_scheduler: Exponential
+local_per_settings:
+  local_per_optimizer: SGD
+  local_per_lr_scheduler: Exponential
+# datasets related
 oulu:
   dataset: FER/oulu
   num_clients: 20

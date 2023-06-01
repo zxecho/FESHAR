@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # partition = sys.argv[3] if sys.argv[3] != "-" else None
 
     niid = True
-    real = False
-    partition = 'dir'
+    real = True
+    partition = 'noise'
 
     generate_FER_data(dir_path, num_clients, num_classes, niid, real, partition)

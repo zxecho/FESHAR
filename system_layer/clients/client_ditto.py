@@ -9,6 +9,10 @@ import torch.nn.functional as F
 from sklearn.preprocessing import label_binarize
 from sklearn import metrics
 
+from algo_layer.optimizers import get_optimizer
+from algo_layer.loss_function_factors import get_loss_function
+from algo_layer.lr_scheduler import get_lr_scheduler
+
 
 class clientDitto(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
@@ -18,12 +22,12 @@ class clientDitto(Client):
         self.plocal_steps = args.plocal_steps
 
         self.model_per = copy.deepcopy(self.model)
-        self.optimizer_per = PerturbedGradientDescent(
-            self.model_per.parameters(), lr=self.learning_rate, mu=self.mu)
-        self.learning_rate_scheduler_per = torch.optim.lr_scheduler.ExponentialLR(
-            optimizer=self.optimizer_per,
-            gamma=args.learning_rate_decay_gamma
-        )
+        if args.local_per_opt:
+            self.optimizer_per = get_optimizer(args.local_per_optimizer, self.model_per.parameters(),
+                                               lr=self.learning_rate)
+            self.learning_rate_scheduler_per = get_lr_scheduler(args.local_per_lr_scheduler,
+                                                                self.optimizer_per,
+                                                                gamma=args.learning_rate_decay_gamma)
 
     def train(self):
         trainloader = self.load_train_data()
@@ -82,11 +86,12 @@ class clientDitto(Client):
                 y = y.to(self.device)
                 if self.train_slow:
                     time.sleep(0.1 * np.abs(np.random.rand()))
-                self.optimizer_per.zero_grad()
+
                 output = self.model_per(x)
                 loss = self.loss(output, y)
+                self.optimizer_per.zero_grad()
                 loss.backward()
-                self.optimizer_per.step(self.model.parameters(), self.device)
+                self.optimizer_per.step()
 
         # self.model.cpu()
 

@@ -20,7 +20,7 @@ class MySimpleNet(nn.Module):
 
         self.depth_len = len(depths)
         # self.stem = SimpleStem(in_channels, dim=dims[0])
-        stem = split_stem(in_channels, stem_dims=dims[0], branch_ratio=0.25, branch_num=1)
+        stem = split_stem(in_channels, stem_dims=dims[0], branch_ratio=0.25)
         '''
         self.incepres_1 = IncepResNet_unit(dims[0], dims[1], 1, add_att=add_att)
         self.incepres_2 = IncepResNet_unit(dims[1], dims[2], 1, add_att=add_att)
@@ -119,43 +119,41 @@ class SimpleStem(nn.Module):
 
 
 class split_stem(nn.Module):
-    def __init__(self, in_channels, stem_dims, branch_ratio=0.125, branch_num=0):
+    def __init__(self, in_channels, stem_dims, branch_ratio=0.125):
         super(split_stem, self).__init__()
 
-        self.branch_num = branch_num
         gc = int(stem_dims * branch_ratio)  # channel numbers of a convolution branch
         self.features = nn.Sequential(
             nn.Conv2d(in_channels, stem_dims, kernel_size=4, stride=4, padding=0),  # pwconv
             LayerNorm(stem_dims, eps=1e-6, data_format="channels_first"),  # layernorm(chennel_first)
             # nn.Conv2d(stem_dims, stem_dims, kernel_size=1, stride=1, padding=0)  # pwconv
         )
-        if branch_num > 0:
-            self.dwconv_1 = nn.Conv2d(gc, gc, 5, padding=2)  # , groups=gc
-            self.dwconv_2 = nn.Conv2d(gc, gc, kernel_size=7, padding=3)
-            # self.dwconv_2 = nn.MaxPool2d(3, stride=1)
-            self.dwconv_3 = nn.Conv2d(gc, gc, kernel_size=11, padding=5)
 
-            self.split_indexes = (stem_dims - 3 * gc, gc, gc, gc)
-            self.spa_att_layer = spatial_attention_layer(stem_dims)
-            self.channel_att_layer = channel_attention_layer(stem_dims)
+        self.dwconv_1 = nn.Conv2d(gc, gc, 5, padding=2)  # , groups=gc
+        self.dwconv_2 = nn.Conv2d(gc, gc, kernel_size=7, padding=3)
+        # self.dwconv_2 = nn.MaxPool2d(3, stride=1)
+        self.dwconv_3 = nn.Conv2d(gc, gc, kernel_size=11, padding=5)
+
+        self.split_indexes = (stem_dims - 3 * gc, gc, gc, gc)
+        # self.spa_att_layer = spatial_attention_layer(stem_dims)
+        self.channel_att_layer = channel_attention_layer(stem_dims)
         # self.sa_layer = sa_layer(stem_dims)
 
     def forward(self, x):
         x = self.features(x)
-        if self.branch_num > 0:
-            x_0, x_1, x_2, x_3 = torch.split(x, self.split_indexes, dim=1)
-            stem_out = torch.cat(
-                (x_0, self.dwconv_1(x_1), self.dwconv_2(x_2), self.dwconv_3(x_3)),
-                dim=1,
-            )
-            # stem_out = self.sa_layer(stem)
-            # 空间注意力
-            # stem_out = self.spa_att_layer(stem_out)
-            stem_out = self.channel_att_layer(stem_out)
-            return stem_out
-        else:
 
-            return x
+        x_0, x_1, x_2, x_3 = torch.split(x, self.split_indexes, dim=1)
+        stem_out = torch.cat(
+            (x_0, self.dwconv_1(x_1), self.dwconv_2(x_2), self.dwconv_3(x_3)),
+            dim=1,
+        )
+        # stem_out = self.sa_layer(stem)
+        # 空间注意力
+        # stem_out = self.spa_att_layer(stem_out)
+        stem_out = self.channel_att_layer(stem_out)
+
+        return stem_out
+
 
 
 class IncepResNet_unit(nn.Module):

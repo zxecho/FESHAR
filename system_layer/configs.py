@@ -14,7 +14,7 @@ def args_parser():
     parser.add_argument('-algo', "--algorithm", type=str, default="FedAvg")
     parser.add_argument('-mn', "--model_name", type=str, default="cnn")
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
-    parser.add_argument('-p', "--predictor", type=str, default="cnn")
+    parser.add_argument('-head', "--head", type=str, default="cnn")
     parser.add_argument('-dev', "--device", type=str, default="cuda:0", choices=["cpu", "cuda"])
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
@@ -30,10 +30,16 @@ def args_parser():
     parser.add_argument('-ls', "--local_steps", type=int, default=5)
     parser.add_argument('-lbs', "--batch_size", type=int, default=8)
     parser.add_argument('-opt', "--optimizer", type=str, default="SGD")
+    parser.add_argument('-lfc', "--loss_fc", type=str, default="cross_entropy")
+    parser.add_argument('-lrs', "--lr_scheduler", type=str, default="Exponential")
+    parser.add_argument('-lpo', "--local_per_opt", type=bool, default=False, help='local personalization optim')
+    parser.add_argument('-lopt', "--local_per_optimizer", type=str, default="SGD")
+    parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
+
     parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.0005, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
-    parser.add_argument('-lde', "--lr_decay_every", type=int, default=20)
+    parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
     parser.add_argument('-ld', "--learning_rate_decay", type=bool, default=False)
     # 系统设置
     parser.add_argument('-pv', "--prev", type=int, default=0, help="Previous Running times")

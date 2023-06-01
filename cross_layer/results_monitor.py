@@ -23,6 +23,15 @@ def average_data(algorithm="", dataset="", goal="", save_dir="", times=10, lengt
     print("mean for best accurancy:", mean)
 
 
+def local_average_results(all_rs_test_max_acc, all_rs_test_max_auc, save_dir):
+    std = np.std(all_rs_test_max_acc)
+    mean = np.mean(all_rs_test_max_acc)
+    # save to local
+    save2json(os.path.join('results/', save_dir), {'std': std, 'mean': mean}, 'results')
+    print("std for best accurancy:", std)
+    print("mean for best accurancy:", mean)
+
+
 def get_all_results_for_one_algo(algorithm="", dataset="", goal="", save_dir="", times=10, length=800):
     test_acc = np.zeros((times, length))
     algorithms_list = [algorithm] * times

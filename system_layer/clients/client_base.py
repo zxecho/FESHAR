@@ -7,6 +7,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import label_binarize
 from sklearn import metrics
+
+from algo_layer.optimizers import get_optimizer
+from algo_layer.loss_function_factors import get_loss_function
+from algo_layer.lr_scheduler import get_lr_scheduler
 from infrastructure_layer.read_client_data import read_client_data
 
 
@@ -16,6 +20,8 @@ class Client(object):
     """
 
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
+
+        self.args = args
         self.model = copy.deepcopy(args.model)
         self.dataset = args.dataset
         self.device = args.device
@@ -46,14 +52,19 @@ class Client(object):
         self.dp_sigma = args.dp_sigma
         self.sample_rate = self.batch_size / self.train_samples
 
-        self.loss = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.learning_rate_scheduler = torch.optim.lr_scheduler.ExponentialLR(
-            optimizer=self.optimizer,
-            gamma=args.learning_rate_decay_gamma,
-        )
-
+        # optimization settings
+        self.loss = None
+        self.optimizer = None
+        self.learning_rate_scheduler = None
         self.learning_rate_decay = args.learning_rate_decay
+
+        self.set_optimization()
+
+    def set_optimization(self):
+        self.loss = get_loss_function(self.args.loss_fc)
+        self.optimizer = get_optimizer(self.args.optimizer, self.model.parameters(), self.learning_rate)
+        self.learning_rate_scheduler = get_lr_scheduler(self.args.lr_scheduler, self.optimizer,
+                                                        gamma=self.args.learning_rate_decay_gamma)
 
     def load_train_data(self, batch_size=None):
         if batch_size is None:

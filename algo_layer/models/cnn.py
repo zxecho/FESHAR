@@ -7,20 +7,6 @@ from algo_layer.models.model_utils import LayerNorm, GRN, count_parameters
 batch_size = 16
 
 
-class LocalModel(nn.Module):
-    def __init__(self, base, predictor):
-        super(LocalModel, self).__init__()
-
-        self.base = base
-        self.predictor = predictor
-
-    def forward(self, x):
-        out = self.base(x)
-        out = self.predictor(out)
-
-        return out
-
-
 class FedAvgCNN(nn.Module):
     def __init__(self, in_features=1, num_classes=10, dim=1024):
         super().__init__()
@@ -48,14 +34,14 @@ class FedAvgCNN(nn.Module):
             nn.Linear(dim, 512),
             nn.ReLU(inplace=True)
         )
-        self.fc = nn.Linear(512, num_classes)
+        self.head = nn.Linear(512, num_classes)
 
     def forward(self, x):
         out = self.conv1(x)
         out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
-        out = self.fc(out)
+        out = self.head(out)
         return out
 
 

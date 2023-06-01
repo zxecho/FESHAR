@@ -12,7 +12,7 @@ class Ditto(Server):
 
         # select slow clients
         self.set_slow_clients()
-        self.set_clients(args, clientDitto)
+        self.set_clients(clientDitto)
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
@@ -31,6 +31,10 @@ class Ditto(Server):
                 print("\nEvaluate global models")
                 self.evaluate()
 
+            if i % self.eval_gap == 0:
+                print("\nEvaluate personalized models")
+                self.evaluate_personalized()
+
             for client in self.selected_clients:
                 client.ptrain()
                 client.train()
@@ -39,10 +43,6 @@ class Ditto(Server):
             #            for client in self.selected_clients]
             # [t.start() for t in threads]
             # [t.join() for t in threads]
-
-            if i % self.eval_gap == 0:
-                print("\nEvaluate personalized models")
-                self.evaluate_personalized()
 
             self.receive_models()
             self.aggregate_parameters()

@@ -22,6 +22,9 @@ class OnlyLocalTrain_server(Server):
 
         # self.load_model()
         self.Budget = []
+        # log global test results
+        self.each_client_max_test_acc = []
+        self.each_client_max_test_auc = []
 
     def select_clients(self):
         # 选择所有的客户端
@@ -36,6 +39,8 @@ class OnlyLocalTrain_server(Server):
         for client in self.selected_clients:
             s_t = time.time()
             self.rs_train_loss, self.rs_test_acc, self.rs_test_auc = client.train()
+            self.each_client_max_test_acc.append(max(self.rs_test_acc))
+            self.each_client_max_test_auc.append(max(self.rs_test_auc))
 
             self.Budget.append(time.time() - s_t)
             print('-' * 25, 'Clinet {} time cost:{}'.format(client.id, self.Budget[-1]), '-' * 25)
@@ -98,12 +103,17 @@ class OnlyLocalClient(Client):
 
                 if self.learning_rate_decay and step % self.args.lr_decay_every == 0:
                     self.learning_rate_scheduler.step()
-
+                # evaluating
                 if step % self.args.eval_gap == 0:
-                    train_loss, _ = self.train_metrics()
-                    test_acc, _, test_auc = self.test_metrics()
+                    train_loss, train_num_samples = self.train_metrics()
+                    test_acc, test_num_samples, test_auc = self.test_metrics()
 
+                    # log train metrics
+                    train_loss = train_loss * 1.0 / train_num_samples
                     train_losses_list.append(train_loss)
+                    # log test metrics
+                    test_acc = test_acc * 1.0 / test_num_samples
+                    # test_auc = test_auc * 1.0 / test_num_samples
                     test_correct_list.append(test_acc)
                     test_auc_list.append(test_auc)
 
@@ -116,58 +126,3 @@ class OnlyLocalClient(Client):
         self.train_time_cost['total_cost'] += time.time() - start_time
 
         return train_losses_list, test_correct_list, test_auc_list
-
-    # evaluate selected clients
-    def evaluate(self, acc=None, auc=None, loss=None):
-        stats = self.test_metrics()
-        stats_train = self.train_metrics()
-
-        test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
-        test_auc = sum(stats[3]) * 1.0 / sum(stats[1])
-        train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
-        accs = [a / n for a, n in zip(stats[2], stats[1])]
-        aucs = [a / n for a, n in zip(stats[3], stats[1])]
-
-        if acc is None:
-            self.rs_test_acc.append(test_acc)
-        else:
-            acc.append(test_acc)
-
-        if auc is None:
-            self.rs_test_auc.append(test_auc)
-        else:
-            acc.append(test_auc)
-
-        if loss is None:
-            self.rs_train_loss.append(train_loss)
-        else:
-            loss.append(train_loss)
-
-        print("Averaged Train Loss: {:.4f}".format(train_loss))
-        print("Averaged Test Accurancy: {:.4f}".format(test_acc))
-        print("Averaged Test AUC: {:.4f}".format(test_auc))
-        # self.print_(test_acc, train_acc, train_loss)
-        print("Std Test Accurancy: {:.4f}".format(np.std(accs)))
-        print("Std Test AUC: {:.4f}".format(np.std(aucs)))
-
-    def save_results(self):
-        dataset_dir = self.dataset.split('/')
-        if len(dataset_dir) > 1:
-            dataset = dataset_dir[-1]
-        algo = dataset + "_" + self.algorithm
-        result_path = "./results/{}/".format(self.save_folder_name)
-        if not os.path.exists(result_path):
-            os.makedirs(result_path)
-
-        if len(self.rs_test_acc):
-            algo = algo + "_" + self.goal + "_" + str(self.times)
-            file_path = result_path + "{}.h5".format(algo)
-            print("File path: " + file_path)
-
-            with h5py.File(file_path, 'w') as hf:
-                hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
-                hf.create_dataset('rs_test_auc', data=self.rs_test_auc)
-                hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
-
-            plot_resutls((self.rs_test_acc, self.rs_test_auc, self.rs_train_loss), result_path,
-                         algo)
