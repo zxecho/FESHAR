@@ -1,14 +1,14 @@
 general_config:
   times: 1
-  model_name: cnn      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
-  predictor: cnn
-  algorithm: FedRep     # FedAvg / FedPer / FedProx / ditto / FedRep
+  model_name: simplenet      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
+  predictor: simplenet
+  algorithm: FedAMP     # FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP
   global_rounds: 200
   # optimization related
-  optimizer: SGD      # SGD / AdamW / Adam
+  optimizer: AdamW      # SGD / AdamW / Adam
   batch_size: 4
   local_steps: 5
-  local_per_opt: True
+  local_per_opt: False
   lr_scheduler: Exponential
 local_per_settings:
   local_per_optimizer: SGD

@@ -14,6 +14,7 @@ from system_layer.servers.FER_Task.FedPer_server import FedPer
 from system_layer.servers.server_rep import FedRep
 from system_layer.servers.server_fedprox import FedProx
 from system_layer.servers.server_ditto import Ditto
+from system_layer.servers.server_amp import FedAMP
 from system_layer.servers.only_local_train import OnlyLocalTrain_server
 # 载入模型
 from algo_layer.models.cnn import FedAvgCNN
@@ -71,6 +72,8 @@ def run(args):
             server = FedRep(args, i)
         elif args.algorithm == "Ditto":
             server = Ditto(args, i)
+        elif args.algorithm == "FedAMP":
+            server = FedAMP(args, i)
         else:
             raise NotImplementedError
 
@@ -128,13 +131,15 @@ if __name__ == '__main__':
         per_local_setttings = data_configs.pop('local_per_settings')
         args.local_per_optimizer = per_local_setttings['local_per_optimizer']
         args.local_per_lr_scheduler = per_local_setttings['local_per_lr_scheduler']
+    else:
+        per_local_setttings = data_configs.pop('local_per_settings')
 
     run_exps_params = data_configs.keys()
     print(run_exps_params)
     for param in run_exps_params:
         args.num_clients = data_configs[param]['num_clients']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_FER_{}_exp-N3'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_FER_{}_exp-N7'.format(args.model_name, args.algorithm, param)
 
         # print essential parameters info
         print("=" * 50)
