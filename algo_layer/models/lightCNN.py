@@ -20,7 +20,7 @@ class MySimpleNet(nn.Module):
 
         self.depth_len = len(depths)
         # self.stem = SimpleStem(in_channels, dim=dims[0])
-        stem = split_stem(in_channels, stem_dims=dims[0], branch_ratio=0.25)
+        self.stem = split_stem(in_channels, stem_dims=dims[0], branch_ratio=0.25)
         '''
         self.incepres_1 = IncepResNet_unit(dims[0], dims[1], 1, add_att=add_att)
         self.incepres_2 = IncepResNet_unit(dims[1], dims[2], 1, add_att=add_att)
@@ -29,8 +29,8 @@ class MySimpleNet(nn.Module):
             self.att_layer = sa_layer(dims[-1])
         '''
         self.downsample_layers = nn.ModuleList()
-        self.downsample_layers.append(stem)
-        for i in range(self.depth_len-1):
+        self.downsample_layers.append(self.stem)
+        for i in range(self.depth_len - 1):
             downsample_layer = nn.Sequential(
                 LayerNorm(dims[i], eps=1e-6, data_format="channels_first"),
                 nn.Conv2d(dims[i], dims[i + 1], kernel_size=2, stride=2),
@@ -155,7 +155,6 @@ class split_stem(nn.Module):
         return stem_out
 
 
-
 class IncepResNet_unit(nn.Module):
     def __init__(self, in_channels, out_channel=32, scale=1.0, add_att=False,
                  layer_scale_init_value=1e-6, drop_path=0.):
@@ -269,3 +268,9 @@ class Conv2d(nn.Module):
         x = self.norm(x)
         x = self.relu(x)
         return x
+
+
+if __name__ == "__main__":
+    model = MySimpleNet(classes=6)
+    params = list(model.downsample_layers[0].parameters())
+    print(model)

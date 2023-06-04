@@ -8,7 +8,10 @@ from system_layer.servers.server_base import Server
 from threading import Thread
 
 
-class FedAMP(Server):
+class FedPLAG(Server):
+    """
+    Model splitting + FedAMP
+    """
     def __init__(self, args, times):
         super().__init__(args, times)
 
@@ -57,14 +60,14 @@ class FedAMP(Server):
 
         if len(self.uploaded_models) > 0:
             for c in self.selected_clients:
-                mu = copy.deepcopy(self.global_model)
+                mu = copy.deepcopy(self.global_model.base)
                 for param in mu.parameters():
                     param.data.zero_()
 
                 coef = torch.zeros(self.join_clients)
                 for j, mw in enumerate(self.uploaded_models):
                     if c.id != self.uploaded_ids[j]:
-                        weights_i = torch.cat([p.data.view(-1) for p in c.model.parameters()], dim=0)
+                        weights_i = torch.cat([p.data.view(-1) for p in c.model.base.parameters()], dim=0)
                         weights_j = torch.cat([p.data.view(-1) for p in mw.parameters()], dim=0)
                         sub = (weights_i - weights_j).view(-1)
                         sub = torch.dot(sub, sub)
@@ -87,6 +90,21 @@ class FedAMP(Server):
 
                 c.send_time_cost['num_rounds'] += 1
                 c.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+
+    def receive_models(self):
+        assert (len(self.selected_clients) > 0)
+
+        self.uploaded_weights = []
+        tot_samples = 0
+        self.uploaded_ids = []
+        self.uploaded_models = []
+        for client in self.selected_clients:
+            self.uploaded_weights.append(client.train_samples)
+            tot_samples += client.train_samples
+            self.uploaded_ids.append(client.id)
+            self.uploaded_models.append(client.model.base)
+        for i, w in enumerate(self.uploaded_weights):
+            self.uploaded_weights[i] = w / tot_samples
 
     def e(self, x):
         return math.exp(-x/self.sigma)/self.sigma

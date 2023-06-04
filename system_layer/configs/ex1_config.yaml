@@ -2,7 +2,7 @@ general_config:
   times: 1
   model_name: simplenet      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
   predictor: simplenet
-  algorithm: FedAMP     # FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP
+  algorithm: FERv2     # FedPLAG / FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP / FERv2
   global_rounds: 200
   # optimization related
   optimizer: AdamW      # SGD / AdamW / Adam

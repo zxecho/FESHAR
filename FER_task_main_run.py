@@ -9,12 +9,15 @@ import torch
 # 服务器server
 # 任务服务器模型算法
 # facial expression recognition experiments
+from system_layer.servers.server_dyn import FedDyn
 from system_layer.servers.FER_Task.FER_server import FERserver
+from system_layer.servers.FER_Task.my_FER_server_v2 import FER_Server_v2
 from system_layer.servers.FER_Task.FedPer_server import FedPer
 from system_layer.servers.server_rep import FedRep
 from system_layer.servers.server_fedprox import FedProx
 from system_layer.servers.server_ditto import Ditto
 from system_layer.servers.server_amp import FedAMP
+from system_layer.servers.FER_Task.my_FER_server import FedPLAG
 from system_layer.servers.only_local_train import OnlyLocalTrain_server
 # 载入模型
 from algo_layer.models.cnn import FedAvgCNN
@@ -56,14 +59,23 @@ def run(args):
         # 选择算法
         if args.algorithm == 'FedAvg':
             server = FERserver(args, i)
+        elif args.algorithm == "FedDyn":
+            server = FedDyn(args, i)
         elif args.algorithm == 'only_local':
             server = OnlyLocalTrain_server(args, i)
+        elif args.algorithm == 'FERv2':
+            server = FER_Server_v2(args, i)
+        elif args.algorithm == "FedPLAG":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = FedPLAG(args, i)
         elif args.algorithm == 'FedProx':
             server = FedProx(args, i)
         elif args.algorithm == "FedPer":
-            args.predictor = copy.deepcopy(args.model.head)
+            args.head = copy.deepcopy(args.model.head)
             args.model.head = torch.nn.Identity()
-            args.model = LocalModel(args.model, args.predictor)
+            args.model = LocalModel(args.model, args.head)
             server = FedPer(args, i)
         elif args.algorithm == "FedRep":
             args.head = copy.deepcopy(args.model.head)
@@ -139,7 +151,7 @@ if __name__ == '__main__':
     for param in run_exps_params:
         args.num_clients = data_configs[param]['num_clients']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_FER_{}_exp-N7'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_FER_{}_SN(ly-12)_exp1'.format(args.model_name, args.algorithm, param)
 
         # print essential parameters info
         print("=" * 50)

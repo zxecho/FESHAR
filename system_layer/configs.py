@@ -92,6 +92,11 @@ def args_parser():
     # APPLE
     parser.add_argument('-dlr', "--dr_learning_rate", type=float, default=0.0)
     parser.add_argument('-L', "--L", type=float, default=1.0)
+    # FedALA
+    parser.add_argument('-et', "--eta", type=float, default=1.0)
+    parser.add_argument('-s', "--rand_percent", type=int, default=80)
+    parser.add_argument('-p', "--layer_idx", type=int, default=12,
+                        help="More fine-graind than its original paper.")
 
     # 专门用于联邦的生成网络
     parser.add_argument('--fed_g_lr', type=float, default=1e-3, help="Fed G learning rate")
