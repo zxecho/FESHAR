@@ -31,6 +31,8 @@ from system_layer.configs import args_parser
 from cross_layer.results_monitor import average_data, local_average_results
 from cross_layer.process_logging import save_args_config
 
+from infrastructure_layer.basic_utils import count_vars_module
+
 
 def run(args):
     time_list = []
@@ -89,6 +91,8 @@ def run(args):
         else:
             raise NotImplementedError
 
+        print('>>>>>>>>>>> [Parameters: {}] <<<<<<<<<<<<'.format(count_vars_module(args.model, args.layer_idx)))
+
         server.train()
 
         time_list.append(time.time() - start)
@@ -133,8 +137,10 @@ if __name__ == '__main__':
     args.times = general_params['times']
     args.model_name = general_params['model_name']
     args.predictor = general_params['predictor']
+    args.layer_idx = general_params['layer_idx']
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']
+    # args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
     args.local_steps = general_params['local_steps']
@@ -146,39 +152,42 @@ if __name__ == '__main__':
     else:
         per_local_setttings = data_configs.pop('local_per_settings')
 
-    run_exps_params = data_configs.keys()
-    print(run_exps_params)
-    for param in run_exps_params:
-        args.num_clients = data_configs[param]['num_clients']
-        args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_FER_{}_SN(ly-12)_exp1'.format(args.model_name, args.algorithm, param)
+    run_params = general_params['join_ratio']
+    datasets = data_configs.keys()
+    print(datasets, run_params)
+    for dataset in datasets:
+        args.num_clients = data_configs[dataset]['num_clients']
+        args.dataset = data_configs[dataset]['dataset']
+        for param in run_params:
+            args.join_ratio = param
+            args.save_folder_name = '{}_{}_{}(jr={})'.format(args.model_name, args.algorithm, dataset, param)
 
-        # print essential parameters info
-        print("=" * 50)
+            # print essential parameters info
+            print("=" * 50)
 
-        print("Algorithm: {}".format(args.algorithm))
-        print("Local batch size: {}".format(args.batch_size))
-        print("Local steps: {}".format(args.local_steps))
-        print("Local learing rate: {}".format(args.local_learning_rate))
-        print("Total number of clients: {}".format(args.num_clients))
-        print("Clients join in each round: {}".format(args.join_ratio))
-        print("Client drop rate: {}".format(args.client_drop_rate))
-        print("Time select: {}".format(args.time_select))
-        print("Time threthold: {}".format(args.time_threthold))
-        print("Global rounds: {}".format(args.global_rounds))
-        print("Running times: {}".format(args.times))
-        print("Dataset: {}".format(args.dataset))
-        print("Local model: {}".format(args.model))
-        print("Using device: {}".format(args.device))
+            print("Algorithm: {}".format(args.algorithm))
+            print("Local batch size: {}".format(args.batch_size))
+            print("Local steps: {}".format(args.local_steps))
+            print("Local learing rate: {}".format(args.local_learning_rate))
+            print("Total number of clients: {}".format(args.num_clients))
+            print("Clients join in each round: {}".format(args.join_ratio))
+            print("Client drop rate: {}".format(args.client_drop_rate))
+            print("Time select: {}".format(args.time_select))
+            print("Time threthold: {}".format(args.time_threthold))
+            print("Global rounds: {}".format(args.global_rounds))
+            print("Running times: {}".format(args.times))
+            print("Dataset: {}".format(args.dataset))
+            print("Local model: {}".format(args.model))
+            print("Using device: {}".format(args.device))
 
-        if args.device == "cuda":
-            print("Cuda device id: {}".format(os.environ["CUDA_VISIBLE_DEVICES"]))
-        print("=" * 50)
+            if args.device == "cuda":
+                print("Cuda device id: {}".format(os.environ["CUDA_VISIBLE_DEVICES"]))
+            print("=" * 50)
 
-        # save args
-        save_args_config(args)
+            # save args
+            save_args_config(args)
 
-        run(args)
+            run(args)
 
-        # 清空GPU缓存
-        torch.cuda.empty_cache()
+            # 清空GPU缓存
+            torch.cuda.empty_cache()

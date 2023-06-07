@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 import yaml
+import numpy as np
 import argparse
 
 
@@ -82,5 +83,12 @@ def get_config_from_yaml(file_path, args):
     default_arg = load_yaml_file(file_path)
     # load config with yaml
     args.set_defaults(**default_arg)
+
+
+def count_vars_module(module, layers=0):
+    if layers == 0:
+        return sum([np.prod(p.shape) for p in module.parameters()])
+    else:
+        return sum([np.prod(p.shape) for p in list(module.parameters())[:-layers]])
 
 
