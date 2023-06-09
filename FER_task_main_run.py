@@ -14,6 +14,8 @@ from system_layer.servers.FER_Task.FER_server import FERserver
 from system_layer.servers.FER_Task.my_FER_server_v2 import FER_Server_v2
 from system_layer.servers.FER_Task.FedPer_server import FedPer
 from system_layer.servers.server_rep import FedRep
+from system_layer.servers.server_rod import FedROD
+from system_layer.servers.server_babu import FedBABU
 from system_layer.servers.server_fedprox import FedProx
 from system_layer.servers.server_ditto import Ditto
 from system_layer.servers.server_amp import FedAMP
@@ -84,6 +86,16 @@ def run(args):
             args.model.head = torch.nn.Identity()
             args.model = BaseHeadSplit(args.model, args.head)
             server = FedRep(args, i)
+        elif args.algorithm == "FedROD":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = FedROD(args, i)
+        elif args.algorithm == "FedBABU":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = FedBABU(args, i)
         elif args.algorithm == "Ditto":
             server = Ditto(args, i)
         elif args.algorithm == "FedAMP":
@@ -136,7 +148,7 @@ if __name__ == '__main__':
     general_params = data_configs.pop('general_config')
     args.times = general_params['times']
     args.model_name = general_params['model_name']
-    args.predictor = general_params['predictor']
+    args.head = general_params['head']
     args.layer_idx = general_params['layer_idx']
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']

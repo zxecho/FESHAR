@@ -1,16 +1,17 @@
 general_config:
   times: 3
   model_name: simplenet      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
-  predictor: simplenet
+  head: simplenet
   layer_idx: 12
-  algorithm: FERv2     # FedPLAG / FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP / FERv2
+  # FedPLAG, FERv2, FedProx, Ditto, FedAMP, FedPer, FedRep, FedBABU, FedROD
+  algorithm: FERv2
   global_rounds: 200
-  join_ratio: [0.2, 0.3, 0.4]
+  join_ratio: 0.2
   # optimization related
   optimizer: AdamW      # SGD / AdamW / Adam
   batch_size: 4
   local_steps: 5
-  local_per_opt: False
+  local_per_opt: True
   lr_scheduler: Exponential
 local_per_settings:
   local_per_optimizer: SGD

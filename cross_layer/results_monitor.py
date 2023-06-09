@@ -10,7 +10,7 @@ def average_data(algorithm="", dataset="", goal="", save_dir="", times=10, lengt
         dataset = dataset_dir[-1]
     test_acc = get_all_results_for_one_algo(
         algorithm, dataset, goal, save_dir, times, int(length))
-    test_acc_data = np.average(test_acc, axis=0)
+    # test_acc_data = np.average(test_acc, axis=0)
 
     max_accurancy = []
     for i in range(times):
@@ -18,7 +18,7 @@ def average_data(algorithm="", dataset="", goal="", save_dir="", times=10, lengt
     std = np.std(max_accurancy)
     mean = np.mean(max_accurancy)
     # save to local
-    save2json(os.path.join('results/', save_dir), {'std': std, 'mean': mean}, 'results')
+    save2json(os.path.join('results/', save_dir), {'max_acc': max_accurancy, 'std': std, 'mean': mean}, 'results')
     print("std for best accurancy:", std)
     print("mean for best accurancy:", mean)
 
