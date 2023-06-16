@@ -26,6 +26,8 @@ from algo_layer.models.cnn import FedAvgCNN
 from algo_layer.models.fcn import FedAvgMLP
 from algo_layer.models.lightCNN import MySimpleNet as SimpleNeXt
 from algo_layer.models.ConvNeXt_v1 import ConvNeXt
+from algo_layer.models.vgg import VGG
+from algo_layer.models.resnet import ResNet18
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
 # 配置参数
 from system_layer.configs import args_parser
@@ -61,6 +63,10 @@ def run(args):
         elif args.model_name == 'ConvNeXt_attom':
             args.model = ConvNeXt(num_classes=args.num_classes, depths=[2, 2, 4, 2],
                                   dims=[32, 64, 128, 256]).to(args.device)
+        elif args.model_name == 'resnet':
+            args.model = ResNet18(classes_num=args.num_classes).to(args.device)
+        elif args.model_name == 'vgg':
+            args.model = VGG(in_chanels=3, class_num=args.num_classes, vgg_name='VGG11')
 
         # 选择算法
         if args.algorithm == 'FedAvg':
