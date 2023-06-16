@@ -11,9 +11,9 @@ from infrastructure_layer.read_client_data import FER_Dataset
 
 random.seed(1)
 np.random.seed(1)
-num_clients = 10
+num_clients = 20
 num_classes = 6
-dir_path = "FER/jaffe/"
+dir_path = "FER/ck/"
 
 resize = 48
 cut_size = 44
@@ -105,6 +105,6 @@ if __name__ == "__main__":
 
     niid = True
     real = True
-    partition = 'noise'
+    partition = 'dir'
 
     generate_FER_data(dir_path, num_clients, num_classes, niid, real, partition)

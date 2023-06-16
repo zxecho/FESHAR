@@ -89,6 +89,6 @@ def count_vars_module(module, layers=0):
     if layers == 0:
         return sum([np.prod(p.shape) for p in module.parameters()])
     else:
-        return sum([np.prod(p.shape) for p in list(module.parameters())[:-layers]])
+        return sum([np.prod(p.shape) for p in list(module.parameters())[:layers]])
 
 

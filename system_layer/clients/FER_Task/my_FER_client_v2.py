@@ -57,9 +57,9 @@ class FER_Client_v2(Client):
             params_g = list(global_model.parameters())
         params = list(self.model.parameters())
 
-        for param, param_g in zip(params[:-self.layer_idx], params_g[:-self.layer_idx]):
+        for param, param_g in zip(params[:self.layer_idx], params_g[:self.layer_idx]):
             param.data = param_g.data.clone()
 
     def get_uploaded_params(self):
         params = list(self.model.parameters())
-        return params[:-self.layer_idx]
+        return params[:self.layer_idx]

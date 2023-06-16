@@ -5,10 +5,12 @@ from timm.models.layers import trunc_normal_, DropPath
 from algo_layer.models.model_utils import ConvMlp, sa_layer, spatial_attention_layer, channel_attention_layer
 from algo_layer.models.model_utils import LayerNorm
 
+from infrastructure_layer.basic_utils import count_vars_module
+
 
 class MySimpleNet(nn.Module):
-    def __init__(self, in_channels=3, classes=6, depths=None, dims=None, add_att=True,
-                 drop_path_rate=0., layer_scale_init_value=1e-6, head_init_scale=1.):
+    def __init__(self, in_channels=3, classes=6, depths=None, dims=None, add_split_stem=True,
+                 stem_dims=40, drop_path_rate=0., layer_scale_init_value=1e-6, head_init_scale=1.):
         super(MySimpleNet, self).__init__()
 
         self.add_att_layer = False
@@ -16,11 +18,14 @@ class MySimpleNet(nn.Module):
         if depths is None:
             depths = [2, 6, 2]
         if dims is None:
-            dims = [40, 80, 160]
+            dims = [stem_dims, 80, 160]
 
         self.depth_len = len(depths)
         # self.stem = SimpleStem(in_channels, dim=dims[0])
-        self.stem = split_stem(in_channels, stem_dims=dims[0], branch_ratio=0.25)
+        if add_split_stem:
+            self.stem = split_stem(in_channels, stem_dims=stem_dims, branch_ratio=0.25)
+        else:
+            self.stem = nn.Conv2d(in_channels, stem_dims, kernel_size=4, stride=4)
         '''
         self.incepres_1 = IncepResNet_unit(dims[0], dims[1], 1, add_att=add_att)
         self.incepres_2 = IncepResNet_unit(dims[1], dims[2], 1, add_att=add_att)
@@ -272,5 +277,7 @@ class Conv2d(nn.Module):
 
 if __name__ == "__main__":
     model = MySimpleNet(classes=6)
-    params = list(model.downsample_layers[0].parameters())
+    # params = list(model.downsample_layers[1].parameters())
+    params_num = count_vars_module(model, 110)
+    print(params_num)
     print(model)

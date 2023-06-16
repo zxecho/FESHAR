@@ -34,8 +34,12 @@ class FedPer(Server):
             # [t.start() for t in threads]
             # [t.join() for t in threads]
 
-            self.receive_models()
-            self.aggregate_parameters()
+            if self.if_llp:
+                self.LLP_receive_models()
+                self.LLP_aggregate_parameters()
+            else:
+                self.receive_models()
+                self.aggregate_parameters()
 
         print("\nBest global accuracy.")
         # self.print_(max(self.rs_test_acc), max(

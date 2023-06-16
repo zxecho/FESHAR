@@ -58,6 +58,9 @@ class Client(object):
         self.learning_rate_scheduler = None
         self.learning_rate_decay = args.learning_rate_decay
 
+        # algo related params
+        self.layer_idx = args.layer_idx
+
         self.set_optimization()
 
     def set_optimization(self):
@@ -193,3 +196,17 @@ class Client(object):
     def lr_scheduler_step(self):
         self.learning_rate_scheduler.step()
         return True
+
+    def LLP_set_parameters(self, global_model):
+        if isinstance(global_model, list):
+            params_g = global_model
+        else:
+            params_g = list(global_model.parameters())
+        params = list(self.model.parameters())
+
+        for param, param_g in zip(params[:self.layer_idx], params_g[:self.layer_idx]):
+            param.data = param_g.data.clone()
+
+    def LLP_get_uploaded_params(self):
+        params = list(self.model.parameters())
+        return params[:self.layer_idx]

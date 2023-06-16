@@ -97,6 +97,9 @@ def args_parser():
     parser.add_argument('-s', "--rand_percent", type=int, default=80)
     parser.add_argument('-p', "--layer_idx", type=int, default=2,
                         help="More fine-graind than its original paper.")
+    # LLP
+    parser.add_argument('-llp', "--llp", type=bool, default=True)
+    parser.add_argument('-stemc', "--stem_channels", type=int, default=40)
 
     # 专门用于联邦的生成网络
     parser.add_argument('--fed_g_lr', type=float, default=1e-3, help="Fed G learning rate")

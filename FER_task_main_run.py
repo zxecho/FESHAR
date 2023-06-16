@@ -52,7 +52,9 @@ def run(args):
         elif args.model_name == 'mlp':
             args.model = FedAvgMLP(in_features=13, num_classes=args.num_classes, hidden_dim=128).to(args.device)
         elif args.model_name == 'simplenet':
-            args.model = SimpleNeXt(classes=6).to(args.device)
+            args.model = SimpleNeXt(classes=6, stem_dims=args.stem_channels).to(args.device)
+        elif args.model_name == 'simplenet_no_split_stem':
+            args.model = SimpleNeXt(classes=6, stem_dims=args.stem_channels).to(args.device)
         elif args.model_name == 'ConvNeXt_base':
             args.model = ConvNeXt(num_classes=args.num_classes, depths=[3, 3, 27, 3],
                                   dims=[128, 256, 512, 1024]).to(args.device)
@@ -126,7 +128,8 @@ def run(args):
 
     # reporter.report()
 
-    # 全局平均
+    # save args again due to some changes in trianing progress
+    save_args_config(args)
 
 
 if __name__ == '__main__':
@@ -149,13 +152,15 @@ if __name__ == '__main__':
     args.times = general_params['times']
     args.model_name = general_params['model_name']
     args.head = general_params['head']
+    args.stem_channels = general_params['stem_channels']
+    args.llp = general_params['llp']
     args.layer_idx = general_params['layer_idx']
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']
-    # args.join_ratio = general_params['join_ratio']
+    args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
-    args.local_steps = general_params['local_steps']
+    # args.local_steps = general_params['local_steps']
     if general_params['local_per_opt']:
         args.local_per_opt = general_params['local_per_opt']
         per_local_setttings = data_configs.pop('local_per_settings')
@@ -164,15 +169,15 @@ if __name__ == '__main__':
     else:
         per_local_setttings = data_configs.pop('local_per_settings')
 
-    run_params = general_params['join_ratio']
+    run_params = general_params['local_steps']
     datasets = data_configs.keys()
     print(datasets, run_params)
     for dataset in datasets:
         args.num_clients = data_configs[dataset]['num_clients']
         args.dataset = data_configs[dataset]['dataset']
         for param in run_params:
-            args.join_ratio = param
-            args.save_folder_name = '{}_{}_{}(jr={})'.format(args.model_name, args.algorithm, dataset, param)
+            args.local_steps = param
+            args.save_folder_name = '{}_{}_{}(local_steps={})'.format(args.model_name, args.algorithm, dataset, param)
 
             # print essential parameters info
             print("=" * 50)

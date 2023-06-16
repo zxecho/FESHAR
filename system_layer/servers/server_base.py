@@ -36,6 +36,9 @@ class Server(object):
         self.top_cnt = 20
         self.auto_break = args.auto_break
 
+        # algo related params
+        self.if_llp = args.llp
+
         # setup clients status
         self.clients = []
         self.selected_clients = []
@@ -101,8 +104,10 @@ class Server(object):
 
         for client in self.clients:
             start_time = time.time()
-
-            client.set_parameters(self.global_model)
+            if self.if_llp:
+                client.LLP_set_parameters(self.global_model)
+            else:
+                client.set_parameters(self.global_model)
 
             client.send_time_cost['num_rounds'] += 1
             client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
@@ -326,3 +331,32 @@ class Server(object):
             print('PSNR error')
 
         # self.save_item(items, f'DLG_{R}')
+
+    def LLP_aggregate_parameters(self):
+        assert (len(self.uploaded_models) > 0)
+
+        self.global_model = copy.deepcopy(self.uploaded_models[0])
+        for param in self.global_model:
+            param.data.zero_()
+
+        for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
+            self.LLP_add_parameters(w, client_model)
+
+    def LLP_add_parameters(self, w, client_model):
+        for server_param, client_param in zip(self.global_model, client_model):
+            server_param.data += client_param.data.clone() * w
+
+    def LLP_receive_models(self):
+        assert (len(self.selected_clients) > 0)
+
+        self.uploaded_weights = []
+        tot_samples = 0
+        self.uploaded_ids = []
+        self.uploaded_models = []
+        for client in self.selected_clients:
+            self.uploaded_weights.append(client.train_samples)
+            tot_samples += client.train_samples
+            self.uploaded_ids.append(client.id)
+            self.uploaded_models.append(client.LLP_get_uploaded_params())
+        for i, w in enumerate(self.uploaded_weights):
+            self.uploaded_weights[i] = w / tot_samples
