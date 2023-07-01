@@ -111,7 +111,8 @@ def run(args):
         else:
             raise NotImplementedError
 
-        print('>>>>>>>>>>> [Parameters: {}] <<<<<<<<<<<<'.format(count_vars_module(args.model, args.layer_idx)))
+        print('>>>>>>>>>>> [Model Parameters: {}] <<<<<<<<<<<<'.format(count_vars_module(args.model)))
+        print('>>>>>>>>>>> [Shared Parameters: {}] <<<<<<<<<<<<'.format(count_vars_module(args.model, args.layer_idx)))
 
         server.train()
 
@@ -164,9 +165,9 @@ if __name__ == '__main__':
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']
     args.join_ratio = general_params['join_ratio']
-    args.optimizer = general_params['optimizer']
+    # args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
-    # args.local_steps = general_params['local_steps']
+    args.local_steps = general_params['local_steps']
     if general_params['local_per_opt']:
         args.local_per_opt = general_params['local_per_opt']
         per_local_setttings = data_configs.pop('local_per_settings')
@@ -175,15 +176,15 @@ if __name__ == '__main__':
     else:
         per_local_setttings = data_configs.pop('local_per_settings')
 
-    run_params = general_params['local_steps']
+    run_params = general_params['optimizer']
     datasets = data_configs.keys()
     print(datasets, run_params)
     for dataset in datasets:
         args.num_clients = data_configs[dataset]['num_clients']
         args.dataset = data_configs[dataset]['dataset']
         for param in run_params:
-            args.local_steps = param
-            args.save_folder_name = '{}_{}_{}(local_steps={})'.format(args.model_name, args.algorithm, dataset, param)
+            args.optimizer = param
+            args.save_folder_name = '{}_{}_{}(Count_params)'.format(args.model_name, args.algorithm, dataset, param)
 
             # print essential parameters info
             print("=" * 50)

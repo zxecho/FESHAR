@@ -88,7 +88,7 @@ def args_parser():
     # Ditto / FedRep
     parser.add_argument('-pls', "--plocal_steps", type=int, default=1)
     # FedBABU
-    parser.add_argument('-fts', "--fine_tuning_steps", type=int, default=1)
+    parser.add_argument('-fts', "--fine_tuning_steps", type=int, default=5)
     # APPLE
     parser.add_argument('-dlr', "--dr_learning_rate", type=float, default=0.0)
     parser.add_argument('-L', "--L", type=float, default=1.0)

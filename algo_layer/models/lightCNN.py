@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from timm.models.layers import trunc_normal_, DropPath
 
-from algo_layer.models.model_utils import ConvMlp, sa_layer, spatial_attention_layer, channel_attention_layer
+from algo_layer.models.model_utils import sa_layer, spatial_attention_layer, channel_attention_layer
 from algo_layer.models.model_utils import LayerNorm
 
 from infrastructure_layer.basic_utils import count_vars_module
@@ -276,8 +276,7 @@ class Conv2d(nn.Module):
 
 
 if __name__ == "__main__":
-    model = MySimpleNet(classes=6)
+    model = MySimpleNet(classes=6, depths=[3,3,9,3], dims=[64,128,256,512])
     # params = list(model.downsample_layers[1].parameters())
-    params_num = count_vars_module(model, 110)
+    params_num = count_vars_module(model)
     print(params_num)
-    print(model)

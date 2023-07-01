@@ -1,39 +1,40 @@
 general_config:
   times: 3
-  model_name: simplenet      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom, vgg, resnet
+  # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom, vgg, resnet, simplenet_no_split_stem
+  model_name: simplenet
   head: simplenet
-  stem_channels: 40
+  stem_channels: 160
   llp: True
   layer_idx: 12
-  # FedPLAG, FERv2, FedProx, Ditto, FedAMP, FedPer, FedRep, FedBABU, FedROD
+  # FedAvg, FedPLAG, FERv2, FedProx, Ditto, FedAMP, FedPer, FedRep, FedBABU, FedROD
   algorithm: FERv2
   global_rounds: 200
   join_ratio: 0.2
   # optimization related
-  optimizer: AdamW      # SGD / AdamW / Adam
+  optimizer: [SGD]      # SGD / AdamW / Adam
   batch_size: 4
-  local_steps: [20]
-  local_per_opt: False
+  local_steps: 5
+  local_per_opt: True
   lr_scheduler: Exponential
 local_per_settings:
   local_per_optimizer: SGD
   local_per_lr_scheduler: Exponential
 # datasets related
-#oulu:
-#  dataset: FER/oulu       # (dir=0.3)
-#  num_clients: 20
-#  join_ratio: 1.0
-#  # client local training settings
-#  local_learning_rate: 0.0005
+oulu:
+  dataset: FER/oulu       # (dir=0.3)
+  num_clients: 20
+  join_ratio: 1.0
+  # client local training settings
+  local_learning_rate: 0.0005
 BU3DFE:
   dataset: FER/BU3DFE
   num_clients: 20
   join_ratio: 1.0
-#ck:
-#  dataset: FER/ck
-#  num_clients: 20
-#  join_ratio: 1.0
-#jaffe:
-#  dataset: FER/jaffe
-#  num_clients: 10
-#  join_ratio: 1.0
+ck:
+  dataset: FER/ck
+  num_clients: 20
+  join_ratio: 1.0
+jaffe:
+  dataset: FER/jaffe
+  num_clients: 10
+  join_ratio: 1.0

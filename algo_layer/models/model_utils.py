@@ -8,7 +8,7 @@ import torch
 from torch import nn
 from torch.nn.parameter import Parameter
 
-from timm.models.layers.helpers import to_2tuple
+# from timm.models.layers.helpers import to_2tuple
 
 
 # split an original model into a base and a head
@@ -128,31 +128,31 @@ class sa_layer(nn.Module):
         return out
 
 
-class ConvMlp(nn.Module):
-    """ MLP using 1x1 convs that keeps spatial dims
-    copied from timm: https://github.com/huggingface/pytorch-image-models/blob/v0.6.11/timm/models/layers/mlp.py
-    """
-    def __init__(
-            self, in_features, hidden_features=None, out_features=None, act_layer=nn.ReLU,
-            norm_layer=None, bias=True, drop=0.):
-        super().__init__()
-        out_features = out_features or in_features
-        hidden_features = hidden_features or in_features
-        bias = to_2tuple(bias)
-
-        self.fc1 = nn.Conv2d(in_features, hidden_features, kernel_size=1, bias=bias[0])
-        self.norm = norm_layer(hidden_features) if norm_layer else nn.Identity()
-        self.act = act_layer()
-        self.drop = nn.Dropout(drop)
-        self.fc2 = nn.Conv2d(hidden_features, out_features, kernel_size=1, bias=bias[1])
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.norm(x)
-        x = self.act(x)
-        x = self.drop(x)
-        x = self.fc2(x)
-        return x
+# class ConvMlp(nn.Module):
+#     """ MLP using 1x1 convs that keeps spatial dims
+#     copied from timm: https://github.com/huggingface/pytorch-image-models/blob/v0.6.11/timm/models/layers/mlp.py
+#     """
+#     def __init__(
+#             self, in_features, hidden_features=None, out_features=None, act_layer=nn.ReLU,
+#             norm_layer=None, bias=True, drop=0.):
+#         super().__init__()
+#         out_features = out_features or in_features
+#         hidden_features = hidden_features or in_features
+#         bias = to_2tuple(bias)
+#
+#         self.fc1 = nn.Conv2d(in_features, hidden_features, kernel_size=1, bias=bias[0])
+#         self.norm = norm_layer(hidden_features) if norm_layer else nn.Identity()
+#         self.act = act_layer()
+#         self.drop = nn.Dropout(drop)
+#         self.fc2 = nn.Conv2d(hidden_features, out_features, kernel_size=1, bias=bias[1])
+#
+#     def forward(self, x):
+#         x = self.fc1(x)
+#         x = self.norm(x)
+#         x = self.act(x)
+#         x = self.drop(x)
+#         x = self.fc2(x)
+#         return x
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
