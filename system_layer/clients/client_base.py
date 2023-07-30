@@ -37,11 +37,11 @@ class Client(object):
         self.lr_decay_every = args.lr_decay_every
 
         # check BatchNorm
-        self.has_BatchNorm = False
-        for layer in self.model.children():
-            if isinstance(layer, nn.BatchNorm2d):
-                self.has_BatchNorm = True
-                break
+        # self.has_BatchNorm = False
+        # for layer in self.model.children():
+        #     if isinstance(layer, nn.BatchNorm2d):
+        #         self.has_BatchNorm = True
+        #         break
 
         self.train_slow = kwargs['train_slow']
         self.send_slow = kwargs['send_slow']
@@ -60,8 +60,6 @@ class Client(object):
 
         # algo related params
         self.layer_idx = args.layer_idx
-
-        self.set_optimization()
 
     def set_optimization(self):
         self.loss = get_loss_function(self.args.loss_fc)

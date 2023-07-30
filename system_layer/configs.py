@@ -21,7 +21,7 @@ def args_parser():
     # 服务器实验参数设置
     parser.add_argument('-jr', "--join_ratio", type=float, default=0.5, help="Ratio of clients per round")
     parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
-    parser.add_argument('-nb', "--num_classes", type=int, default=6)
+    parser.add_argument('-nb', "--num_classes", type=int, default=10)
     parser.add_argument('-gr', "--global_rounds", type=int, default=200)
     parser.add_argument('-rjr', "--random_join_ratio", type=bool, default=False,
                         help="Random ratio of clients per round")
@@ -102,9 +102,16 @@ def args_parser():
     parser.add_argument('-stemc', "--stem_channels", type=int, default=40)
 
     # 专门用于联邦的生成网络
-    parser.add_argument('--fed_g_lr', type=float, default=1e-3, help="Fed G learning rate")
+    parser.add_argument('--G_model', type=object, default=None, help="Fed G model")
+    parser.add_argument('--D_model', type=object, default=None, help="Fed D model")
+    parser.add_argument('--input_size', type=tuple, default=(32, 32), help="Input data size")
+    parser.add_argument('--input_channels', type=int, default=3, help="Input image channels")
+    parser.add_argument('--latent_dim', type=int, default=128, help="noise latent dim for generation")
+    parser.add_argument('--local_g_optimizer', type=str, default='adam', help="Fed G optimizer")
+    parser.add_argument('--local_d_optimizer', type=str, default='adam', help="Fed D optimizer")
+    parser.add_argument('--local_g_lr', type=float, default=1e-4, help="Fed G learning rate")
     parser.add_argument('--fed_g_lr_decay', type=float, default=0.9, help="Fed G learning rate decay rate")
-    parser.add_argument('--fed_d_lr', type=float, default=1e-3, help="Fed D learning rate")
+    parser.add_argument('--local_d_lr', type=float, default=1e-4, help="Fed D learning rate")
     parser.add_argument('--fed_d_lr_decay', type=float, default=0.9, help="Fed D learning rate decay rate")
     parser.add_argument('--fed_c_lr', type=float, default=2e-3, help="Fed C learning rate")
     parser.add_argument('--fed_c_decay_start', type=int, default=5, help="Fed C learning rate decay start")
