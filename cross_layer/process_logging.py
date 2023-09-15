@@ -1,6 +1,6 @@
 import json
 import os.path
-
+import logging
 from infrastructure_layer.basic_utils import mkdir
 
 
@@ -19,3 +19,20 @@ def save2json(fpt, data, name):
     mkdir(fpt)
     with open(fpt + '/' + name + '.json', 'w+') as jsonf:
         json.dump(data, jsonf)
+
+
+def get_logger(dir, name):
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    fileHandler = logging.FileHandler(os.path.join(args.dir, args.name, 'log.txt'), mode='a')
+    fileHandler.setLevel(logging.INFO)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.INFO)
+    formatter = logging.Formatter('[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+                                datefmt='%Y-%m-%d %H:%M:%S')
+    consoleHandler.setFormatter(formatter)
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
+    logger.addHandler(consoleHandler)
