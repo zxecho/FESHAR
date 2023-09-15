@@ -82,10 +82,14 @@ class Discriminator(nn.Module):
         self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, n_classes), nn.Softmax())
 
     def forward(self, img):
+        # Forward pass of the convolutional blocks
         out = self.conv_blocks(img)
+        # Reshape the output of the convolutional blocks to a vector
         out = out.view(out.shape[0], -1)
+        # Forward pass of the adversarial layer
         validity = self.adv_layer(out)
+        # Forward pass of the auxiliary layer
         label = self.aux_layer(out)
 
+        # Return the validity and label
         return validity, label
-
