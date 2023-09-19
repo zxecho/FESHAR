@@ -34,8 +34,6 @@ class ACGAN_Clinet(GAN_client):
             self.model, self.optimizer, trainloader, privacy_engine = \
                 initialize_dp(self.model, self.optimizer, trainloader, self.dp_sigma)
 
-        start_time = time.time()
-
         max_local_steps = self.local_steps
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)

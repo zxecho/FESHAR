@@ -10,14 +10,17 @@ import torch
 # 任务服务器模型算法
 # facial expression recognition experiments
 from system_layer.servers.GAN_Task.ACGAN_server import FedACGAN
+from system_layer.servers.GAN_Task.FedCG_server import FedCG
+from system_layer.servers.server_local import Local
 # 载入模型
-from algo_layer.models.GAN_models import Generator, Discriminator
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
 # 配置参数
-from system_layer.configs import args_parser
+from system_layer.configs_v2 import args_parser, setup_result_saving_path, setup_network_input
 # 载入全局状态监控
 from cross_layer.results_monitor import average_data, local_average_results
 from cross_layer.process_logging import save_args_config
+# 获取记录日志模块
+from cross_layer.process_logging import get_logger
 
 
 def run(args):
@@ -32,14 +35,28 @@ def run(args):
 
         # 初始化模型
         # Initialize generator and discriminator
-        args.G_model = Generator(input_channels=args.input_channels, n_classes=args.num_classes,
-                                 latent_dim=args.latent_dim, img_size=args.input_size).to(args.device)
-        args.D_model = Discriminator(input_channels=args.input_channels, n_classes=args.num_classes,
-                                     img_size=args.input_size).to(args.device)
+        if args.model_name == 'acgan':
+            from algo_layer.models.GAN_models import Generator, Discriminator
+            args.G_model = Generator(input_channels=args.input_channels, n_classes=args.num_classes,
+                                     latent_dim=args.latent_dim, img_size=args.input_size).to(args.device)
+            args.D_model = Discriminator(input_channels=args.input_channels, n_classes=args.num_classes,
+                                         img_size=args.input_size).to(args.device)
+        elif args.model_name == 'lenet5':
+            from algo_layer.models.GAN_modules import Generator, Discriminator
+            args.G_model = Generator(n_classes=args.num_classes,
+                                     latent_dim=args.noise_dim,
+                                     feature_num=args.feature_num)
+            args.D_model = Discriminator(n_classes=args.num_classes,
+                                         feature_num=args.feature_num,
+                                         feature_size=args.feature_size)
 
         # 选择算法
-        if args.algorithm == 'ACGAN':
+        if args.algorithm == 'acgan':
             server = FedACGAN(args, i)
+        elif args.algorithm == 'fedcg':
+            server = FedCG(args, i)
+        elif args.algorithm == 'only_local':
+            server = Local(args, i)
         else:
             raise NotImplementedError
 
@@ -72,7 +89,7 @@ if __name__ == '__main__':
 
     args = args_parser()
 
-    with open('./system_layer/configs/gan_ex1_config.yaml', encoding='utf-8') as f:
+    with open('./system_layer/configs/fedcg_config.yaml', encoding='utf-8') as f:
         data_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     # general config settings
@@ -98,8 +115,15 @@ if __name__ == '__main__':
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_acgan_{}_exp_2'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_{}_exp1'.format(args.model_name, args.algorithm, param)
 
+        # initial network input
+        setup_network_input(args)
+        setup_result_saving_path(args)
+        # get logger
+        args.logger = get_logger(args.dir)
+        args.logger.info("#" * 100)
+        args.logger.info(str(args))
         # print essential parameters info
         print("=" * 50)
 

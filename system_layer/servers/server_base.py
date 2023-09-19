@@ -16,24 +16,43 @@ class Server(object):
     def __init__(self, args, times):
         # Set up the main attributes
         self.args = args
+        # Set the device to be used for the model
         self.device = args.device
+        # Set the dataset to be used for the model
         self.dataset = args.dataset
+        # Set the number of classes to be used for the model
         self.num_classes = args.num_classes
+        # Set the number of rounds to be used for the model
         self.global_rounds = args.global_rounds
+        # Set the number of local steps to be used for the model
         self.local_steps = args.local_steps
+        # Set the batch size to be used for the model
         self.batch_size = args.batch_size
+        # Set the learning rate to be used for the model
         self.learning_rate = args.local_learning_rate
+        # Set the global model to be used for the model
         self.global_model = copy.deepcopy(args.model)
+        # Set the number of clients to be used for the model
         self.num_clients = args.num_clients
+        # Set the join ratio to be used for the model
         self.join_ratio = args.join_ratio
+        # Set the random join ratio to be used for the model
         self.random_join_ratio = args.random_join_ratio
+        # Set the number of clients to be used for the model
         self.join_clients = int(self.num_clients * self.join_ratio)
+        # Set the algorithm to be used for the model
         self.algorithm = args.algorithm
+        # Set the time select to be used for the model
         self.time_select = args.time_select
+        # Set the goal to be used for the model
         self.goal = args.goal
+        # Set the time threshold to be used for the model
         self.time_threthold = args.time_threthold
+        # Set the save folder name to be used for the model
         self.save_folder_name = args.save_folder_name
+        # Set the top count to be used for the model
         self.top_cnt = 20
+        # Set the auto break to be used for the model
         self.auto_break = args.auto_break
 
         # algo related params
@@ -60,7 +79,7 @@ class Server(object):
         self.send_slow_rate = args.send_slow_rate
 
         # logging
-        self.logger = args.log
+        self.logger = args.logger
 
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
@@ -180,6 +199,7 @@ class Server(object):
             result_path = "./results/{}/client_{}/".format(self.save_folder_name, client_id)
         else:
             result_path = "./results/{}/".format(self.save_folder_name)
+        # 新建文件夹
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 

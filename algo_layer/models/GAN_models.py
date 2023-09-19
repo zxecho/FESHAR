@@ -1,12 +1,10 @@
-import argparse
 import os
 import numpy as np
 import math
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-
+from system_layer.training_utils import weights_init
 
 class Generator(nn.Module):
     def __init__(self, n_classes, input_channels, img_size, latent_dim, norm='gn'):

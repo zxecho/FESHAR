@@ -1,4 +1,6 @@
 import torch
+from torch import nn
+import torch.nn.functional as F
 import os
 import numpy as np
 import h5py
@@ -19,20 +21,27 @@ class GAN_server(Server):
 
     def __init__(self, args, times):
         super().__init__(args, times)
-        self.global_G_model = copy.deepcopy(args.G_model)
-        self.global_D_model = copy.deepcopy(args.D_model)
-        self.global_model = (self.global_G_model, self.global_D_model)
+        # old version
+        # self.global_G_model = copy.deepcopy(args.G_model)
+        # self.global_D_model = copy.deepcopy(args.D_model)
+        # self.global_model = (self.global_G_model, self.global_D_model)
+        self.logger = args.logger
+        self.global_model = nn.ModuleDict()
+        self.global_model["generator"] = copy.deepcopy(args.G_model)
+        self.global_model["discriminator"] = copy.deepcopy(args.D_model)
 
         self.latent_dim = args.latent_dim
         self.save_results_path = None
 
-    def send_models(self):
+    def send_models(self, modules=None):
+        if modules is None:
+            modules = ['generator', 'discriminator']
         assert (len(self.clients) > 0)
 
         for client in self.clients:
             start_time = time.time()
 
-            client.set_parameters(self.global_model)
+            client.set_parameters(self.global_model, modules)
 
             client.send_time_cost['num_rounds'] += 1
             client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
@@ -61,35 +70,35 @@ class GAN_server(Server):
         for i, w in enumerate(self.uploaded_weights):
             self.uploaded_weights[i] = w / tot_samples
 
-    def aggregate_parameters(self):
+    def aggregate_parameters(self, modules=None):
+        if modules is None:
+            modules = ['generator', 'discriminator']
         assert (len(self.uploaded_models) > 0)
         assert isinstance(self.uploaded_models[0], tuple)
 
         # self.global_model = copy.deepcopy(self.uploaded_models[0])
-        self.global_G_model = copy.deepcopy(self.uploaded_models[0][0])
-        self.global_D_model = copy.deepcopy(self.uploaded_models[0][1])
+        self.global_G_model = copy.deepcopy(self.uploaded_models[0]['generator'])
+        self.global_D_model = copy.deepcopy(self.uploaded_models[0]['discriminator'])
+        for module in modules:
+            self.global_model[module] = copy.deepcopy(self.uploaded_models[0][module])
 
-        # aggregate G model weights
-        for param in self.global_G_model.parameters():
-            param.data.zero_()
+            # set the initial model weights to zero
+            for param in self.global_model[module].parameters():
+                param.data.zero_()
 
-        for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
-            self.add_parameters(w, client_model[0], 'G')
+            for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
+                self.add_parameters(w, client_model[module], module)
 
-        # aggregate D model weights
-        for param in self.global_D_model.parameters():
-            param.data.zero_()
+    def add_parameters(self, w, client_model, module):
+        # if module_name == 'G':
+        #     for server_param, client_param in zip(self.global_G_model.parameters(), client_model.parameters()):
+        #         server_param.data += client_param.data.clone() * w
+        # elif module_name == 'D':
+        #     for server_param, client_param in zip(self.global_D_model.parameters(), client_model.parameters()):
+        #         server_param.data += client_param.data.clone() * w
 
-        for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
-            self.add_parameters(w, client_model[1], 'D')
-
-    def add_parameters(self, w, client_model, module_name=None):
-        if module_name == 'G':
-            for server_param, client_param in zip(self.global_G_model.parameters(), client_model.parameters()):
-                server_param.data += client_param.data.clone() * w
-        elif module_name == 'D':
-            for server_param, client_param in zip(self.global_D_model.parameters(), client_model.parameters()):
-                server_param.data += client_param.data.clone() * w
+        for server_param, client_param in zip(self.global_model[module].parameters(), client_model.parameters()):
+            server_param.data += client_param.data.clone() * w
 
     def train_metrics(self):
         pass
