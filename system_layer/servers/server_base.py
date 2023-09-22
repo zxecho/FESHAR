@@ -39,7 +39,8 @@ class Server(object):
         # Set the random join ratio to be used for the model
         self.random_join_ratio = args.random_join_ratio
         # Set the number of clients to be used for the model
-        self.join_clients = int(self.num_clients * self.join_ratio)
+        self.num_join_clients = int(self.num_clients * self.join_ratio)
+        self.current_num_join_clients = self.num_join_clients
         # Set the algorithm to be used for the model
         self.algorithm = args.algorithm
         # Set the time select to be used for the model
@@ -51,7 +52,7 @@ class Server(object):
         # Set the save folder name to be used for the model
         self.save_folder_name = args.save_folder_name
         # Set the top count to be used for the model
-        self.top_cnt = 20
+        self.top_cnt = 100
         # Set the auto break to be used for the model
         self.auto_break = args.auto_break
 
@@ -77,6 +78,17 @@ class Server(object):
         self.client_drop_rate = args.client_drop_rate
         self.train_slow_rate = args.train_slow_rate
         self.send_slow_rate = args.send_slow_rate
+
+        # for attack test
+        self.dlg_eval = args.dlg_eval
+        self.dlg_gap = args.dlg_gap
+        self.batch_num_per_client = args.batch_num_per_client
+
+        # for new clients test
+        self.num_new_clients = args.num_new_clients
+        self.new_clients = []
+        self.eval_new_clients = False
+        self.fine_tuning_epoch = args.fine_tuning_epoch
 
         # logging
         self.logger = args.logger
@@ -111,10 +123,11 @@ class Server(object):
 
     def select_clients(self):
         if self.random_join_ratio:
-            join_clients = np.random.choice(range(self.join_clients, self.num_clients + 1), 1, replace=False)[0]
+            self.current_num_join_clients = \
+            np.random.choice(range(self.num_join_clients, self.num_clients + 1), 1, replace=False)[0]
         else:
-            join_clients = self.join_clients
-        selected_clients = list(np.random.choice(self.clients, join_clients, replace=False))
+            self.current_num_join_clients = self.num_join_clients
+        selected_clients = list(np.random.choice(self.clients, self.current_num_join_clients, replace=False))
 
         return selected_clients
 
@@ -135,7 +148,7 @@ class Server(object):
         assert (len(self.selected_clients) > 0)
 
         active_clients = random.sample(
-            self.selected_clients, int((1 - self.client_drop_rate) * self.join_clients))
+            self.selected_clients, int((1 - self.client_drop_rate) * self.current_num_join_clients))
 
         self.uploaded_ids = []
         self.uploaded_weights = []
@@ -214,7 +227,7 @@ class Server(object):
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
 
             plot_resutls((self.rs_test_acc, self.rs_test_auc, self.rs_train_loss), result_path,
-                         algo+'_{}'.format(self.times))
+                         algo + '_{}'.format(self.times))
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):
@@ -225,6 +238,10 @@ class Server(object):
         return torch.load(os.path.join(self.save_folder_name, "server_" + item_name + ".pt"))
 
     def test_metrics(self):
+        if self.eval_new_clients and self.num_new_clients > 0:
+            self.fine_tuning_new_clients()
+            return self.test_metrics_new_clients()
+
         num_samples = []
         tot_correct = []
         tot_auc = []
@@ -239,6 +256,9 @@ class Server(object):
         return ids, num_samples, tot_correct, tot_auc
 
     def train_metrics(self):
+        if self.eval_new_clients and self.num_new_clients > 0:
+            return [0], [1], [0]
+
         num_samples = []
         losses = []
         for c in self.clients:
@@ -351,6 +371,52 @@ class Server(object):
             print('PSNR error')
 
         # self.save_item(items, f'DLG_{R}')
+
+    def set_new_clients(self, clientObj):
+        for i in range(self.num_clients, self.num_clients + self.num_new_clients):
+            train_data = read_client_data(self.dataset, i, is_train=True)
+            test_data = read_client_data(self.dataset, i, is_train=False)
+            client = clientObj(self.args,
+                               id=i,
+                               train_samples=len(train_data),
+                               test_samples=len(test_data),
+                               train_slow=False,
+                               send_slow=False)
+            self.new_clients.append(client)
+
+    # fine-tuning on new clients
+    def fine_tuning_new_clients(self):
+        for client in self.new_clients:
+            client.set_parameters(self.global_model)
+            opt = torch.optim.SGD(client.model.parameters(), lr=self.learning_rate)
+            CEloss = torch.nn.CrossEntropyLoss()
+            trainloader = client.load_train_data()
+            client.model.train()
+            for e in range(self.fine_tuning_epoch):
+                for i, (x, y) in enumerate(trainloader):
+                    if type(x) == type([]):
+                        x[0] = x[0].to(client.device)
+                    else:
+                        x = x.to(client.device)
+                    y = y.to(client.device)
+                    output = client.model(x)
+                    loss = CEloss(output, y)
+                    opt.zero_grad()
+                    loss.backward()
+                    opt.step()
+
+    # evaluating on new clients
+    def test_metrics_new_clients(self):
+        num_samples = []
+        tot_correct = []
+        tot_auc = []
+        for c in self.new_clients:
+            ct, ns, auc = c.test_metrics()
+            tot_correct.append(ct * 1.0)
+            tot_auc.append(auc * ns)
+            num_samples.append(ns)
+
+        ids = [c.id for c in self.new_clients]
 
     def LLP_aggregate_parameters(self):
         assert (len(self.uploaded_models) > 0)

@@ -3,11 +3,12 @@ import argparse
 
 def args_parser():
     parser = argparse.ArgumentParser(description='PyTorch Federated Training')
-    parser.add_argument('-log', "--log", type=object, default=None, help="Log handler")
+    parser.add_argument('-log', "--logger", type=object, default=None, help="Log handler")
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='FER/oulu', help="dataset name(oulu, heart_disease, mnist, cifar10)")
+    parser.add_argument('--dataset', type=str, default='mnist/non-iid_dir_ex(dir=0.1)',
+                        help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
@@ -22,7 +23,7 @@ def args_parser():
     parser.add_argument('-jr', "--join_ratio", type=float, default=0.5, help="Ratio of clients per round")
     parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
     parser.add_argument('-nb', "--num_classes", type=int, default=10)
-    parser.add_argument('-gr', "--global_rounds", type=int, default=200)
+    parser.add_argument('-gr', "--global_rounds", type=int, default=50)
     parser.add_argument('-rjr', "--random_join_ratio", type=bool, default=False,
                         help="Random ratio of clients per round")
     parser.add_argument('-ab', "--auto_break", type=bool, default=False)
@@ -56,9 +57,14 @@ def args_parser():
                                                                                   "sending global model")
     parser.add_argument('-ts', "--time_select", type=bool, default=False, help="Whether to group and select clients "
                                                                                "at each round according to time cost")
-    parser.add_argument('-tth', "--time_threthold", type=float, default=10000, help="The threthold for droping slow "
-                                                                                    "clients")
-
+    parser.add_argument('-tth', "--time_threthold", type=float, default=10000,
+                        help="The threthold for droping slow clients")
+    # 攻击与防御测试
+    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=True)
+    parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
+    parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
+    parser.add_argument('-nnc', "--num_new_clients", type=int, default=0)
+    parser.add_argument('-fte', "--fine_tuning_epoch", type=int, default=0)
     # ==========================================
     #  具体相关算法参数设置
     # pFedMe / PerAvg / FedProx / FedAMP / FedPHP
@@ -100,27 +106,6 @@ def args_parser():
     # LLP
     parser.add_argument('-llp', "--llp", type=bool, default=True)
     parser.add_argument('-stemc', "--stem_channels", type=int, default=40)
-
-    # 专门用于联邦的生成网络
-    parser.add_argument('--G_model', type=object, default=None, help="Fed G model")
-    parser.add_argument('--D_model', type=object, default=None, help="Fed D model")
-    parser.add_argument('--input_size', type=tuple, default=(32, 32), help="Input data size")
-    parser.add_argument('--input_channels', type=int, default=3, help="Input image channels")
-    parser.add_argument('--latent_dim', type=int, default=128, help="noise latent dim for generation")
-    parser.add_argument('--local_g_optimizer', type=str, default='adam', help="Fed G optimizer")
-    parser.add_argument('--local_d_optimizer', type=str, default='adam', help="Fed D optimizer")
-    parser.add_argument('--local_g_lr', type=float, default=1e-4, help="Fed G learning rate")
-    parser.add_argument('--fed_g_lr_decay', type=float, default=0.9, help="Fed G learning rate decay rate")
-    parser.add_argument('--local_d_lr', type=float, default=1e-4, help="Fed D learning rate")
-    parser.add_argument('--fed_d_lr_decay', type=float, default=0.9, help="Fed D learning rate decay rate")
-    parser.add_argument('--fed_c_lr', type=float, default=2e-3, help="Fed C learning rate")
-    parser.add_argument('--fed_c_decay_start', type=int, default=5, help="Fed C learning rate decay start")
-    parser.add_argument('--fed_c_lr_decay', type=float, default=0.95, help="Fed C learning rate decay rate")
-    parser.add_argument('--fed_c_decay_steps', type=int, default=5, help="Fed C learning rate decay every N steps")
-    parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
-    parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
-    parser.add_argument('--n_critic', type=int, default=5, help="WGAN n critic")
-    parser.add_argument('--clip_value', type=int, default=0.01, help="WGAN discriminator clip value")
 
     args = parser.parse_args()
     return args

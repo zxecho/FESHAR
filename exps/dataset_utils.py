@@ -8,7 +8,7 @@ from infrastructure_layer.basic_utils import mkdir
 batch_size = 4
 train_size = 0.75
 least_samples = 6  # batch_size / (1 - train_size)
-alpha = 0.3
+alpha = 0.1
 
 
 def check(config_path, train_path, test_path, num_clients, num_classes, niid=False,
@@ -189,19 +189,19 @@ def save_file(config_path, train_path, test_path, train_data, test_data, num_cli
     # gc.collect()
     print("Saving to disk.\n")
     path_dir_list = train_path.split('/')
-    train_path = os.path.join(path_dir_list[0], path_dir_list[1]+'(dir='+str(alpha)+')', path_dir_list[2])
+    train_path = os.path.join(path_dir_list[0], path_dir_list[1] + '(dir=' + str(alpha) + ')', path_dir_list[2])
     mkdir(train_path)
     for idx, train_dict in enumerate(train_data):
         with open(train_path + '/' + str(idx) + '.npz', 'wb') as f:
             np.savez_compressed(f, data=train_dict)
     path_dir_list = test_path.split('/')
-    test_path = os.path.join(path_dir_list[0], path_dir_list[1]+'(dir='+str(alpha)+')', path_dir_list[2])
+    test_path = os.path.join(path_dir_list[0], path_dir_list[1] + '(dir=' + str(alpha) + ')', path_dir_list[2])
     mkdir(test_path)
     for idx, test_dict in enumerate(test_data):
         with open(test_path + '/' + str(idx) + '.npz', 'wb') as f:
             np.savez_compressed(f, data=test_dict)
     path_dir_list = config_path.split('/')
-    config_path = os.path.join(path_dir_list[0], path_dir_list[1]+'(dir='+str(alpha)+')') + "/config.json"
+    config_path = os.path.join(path_dir_list[0], path_dir_list[1] + '(dir=' + str(alpha) + ')') + "/config.json"
     with open(config_path, 'w') as f:
         ujson.dump(config, f)
 

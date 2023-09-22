@@ -1,6 +1,7 @@
 import json
 import os.path
 import logging
+import datetime
 from infrastructure_layer.basic_utils import mkdir
 
 
@@ -22,11 +23,12 @@ def save2json(fpt, data, name):
 
 
 def get_logger(dir_pth):
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-%S")
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-    fileHandler = logging.FileHandler(os.path.join(dir_pth, 'log.txt'), mode='a')
+    fileHandler = logging.FileHandler(os.path.join(dir_pth, 'log_{}.txt'.format(current_time)), mode='a')
     fileHandler.setLevel(logging.INFO)
     consoleHandler = logging.StreamHandler()
     consoleHandler.setLevel(logging.INFO)

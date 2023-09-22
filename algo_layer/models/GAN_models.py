@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from system_layer.training_utils import weights_init
 
+
 class Generator(nn.Module):
     def __init__(self, n_classes, input_channels, img_size, latent_dim, norm='gn'):
         super(Generator, self).__init__()
@@ -86,4 +87,3 @@ class Discriminator(nn.Module):
         label = self.aux_layer(out)
 
         return validity, label
-

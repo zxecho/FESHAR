@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import logging
 import os
 
@@ -10,7 +9,8 @@ def args_parser():
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='FER/oulu', help="dataset name(oulu, heart_disease, mnist, cifar10)")
+    parser.add_argument('--dataset', type=str, default='FER/oulu',
+                        help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
@@ -18,7 +18,7 @@ def args_parser():
     parser.add_argument('-mn', "--model_name", type=str, default="lenet5", choices=["lenet5", "resnet18", 'mine'])
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
-    parser.add_argument('-dev', "--device", type=str, default="cpu", choices=["cpu", "cuda"])
+    parser.add_argument('-dev', "--device", type=str, default="cuda:0", choices=["cpu", "cuda"])
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
     # 服务器实验参数设置
@@ -111,7 +111,8 @@ def args_parser():
                         help="the number of iteration per epoch for server training (default: 100)")
     parser.add_argument('--G_model', type=object, default=None, help="Fed G model")
     parser.add_argument('--D_model', type=object, default=None, help="Fed D model")
-    parser.add_argument('--gan_epoch', type=int, default=20, help="the epochs for clients' local gan training (default: 20)")
+    parser.add_argument('--gan_epoch', type=int, default=20,
+                        help="the epochs for clients' local gan training (default: 20)")
     # for network input settings
     parser.add_argument('--image_channel', type=int, default=1, help="channel for images")
     parser.add_argument('--image_size', type=int, default=32, help='size for images')
@@ -119,7 +120,8 @@ def args_parser():
     parser.add_argument('--feature_size', type=int, default=32, help='feature size for network model')
     parser.add_argument('--input_size', type=tuple, default=(32, 32), help="Input data size")
     parser.add_argument('--input_channels', type=int, default=1, help="Input image channels")
-    parser.add_argument('--noise_dim', type=int, default=100, help="the noise dim for the generator input (default: 100)")
+    parser.add_argument('--noise_dim', type=int, default=100,
+                        help="the noise dim for the generator input (default: 100)")
     parser.add_argument('--latent_dim', type=int, default=128, help="noise latent dim for generation")
     parser.add_argument('--local_g_optimizer', type=str, default='adam', help="Fed G optimizer")
     parser.add_argument('--local_d_optimizer', type=str, default='adam', help="Fed D optimizer")
@@ -136,7 +138,8 @@ def args_parser():
     parser.add_argument('--n_critic', type=int, default=5, help="WGAN n critic")
     parser.add_argument('--clip_value', type=int, default=0.01, help="WGAN discriminator clip value")
     # For the FedCG algo
-    parser.add_argument('--noise_std', type=float, default=1., help="std for gaussian noise added to image(default: 1.)")
+    parser.add_argument('--noise_std', type=float, default=1.,
+                        help="std for gaussian noise added to image(default: 1.)")
     parser.add_argument('--add_noise', dest='add_noise', action='store_true', default=False,
                         help="whether adding noise to image")
     parser.add_argument('--distance', type=str, default="mse", choices=["none", "mse", "cos"])
@@ -166,12 +169,15 @@ def setup_network_input(args):
         args.feature_num = 128
         args.feature_size = 28
 
+
 def setup_result_saving_path(args):
     if args.algorithm == "fedcg" or args.algorithm == "fedcg_w":
         args.name = args.algorithm + '_' + args.dataset + str(
-            args.num_clients) + '_' + args.model_name + '_' + args.distance # + '_' + str(args.seed)
+            args.num_clients) + '_' + args.model_name + '_' + args.distance  # + '_' + str(args.seed)
     else:
-        args.name = args.algorithm + '_' + args.dataset + str(args.num_clients) + '_' + args.model_name     # + '_' + str(args.seed)
-    args.dir = './results/'+ args.save_folder_name + '/' + 'bs' + str(args.batch_size) + 'lr' + str(args.local_learning_rate) + 'wd' + str(args.weight_decay)
+        args.name = args.algorithm + '_' + args.dataset + str(
+            args.num_clients) + '_' + args.model_name  # + '_' + str(args.seed)
+    args.dir = './results/' + args.save_folder_name + '/' + 'bs' + str(args.batch_size) + 'lr' + str(
+        args.local_learning_rate) + 'wd' + str(args.weight_decay)
     args.checkpoint_dir = os.path.join(args.dir, args.name, 'checkpoint')
     os.makedirs(args.checkpoint_dir, exist_ok=True)

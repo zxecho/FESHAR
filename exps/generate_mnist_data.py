@@ -34,7 +34,8 @@ def generate_mnist(dir_path, num_clients, num_classes, niid=False, real=True, pa
     urllib.request.install_opener(opener)
 
     # Get MNIST data
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.5], [0.5])])
+    transform = transforms.Compose([transforms.ToTensor(),
+                                    transforms.Normalize([0.5], [0.5])])
 
     trainset = torchvision.datasets.MNIST(
         root=dir_path + "rawdata", train=True, download=True, transform=transform)
