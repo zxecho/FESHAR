@@ -141,7 +141,7 @@ if __name__ == '__main__':
     total_start = time.time()
 
     args = args_parser()
-    args.save_folder_name = '{}_{}_{}_dlg_test'.format(args.model_name, args.algorithm, args.dataset)
+    args.save_folder_name = '{}_{}_{}_baseline'.format(args.model_name, args.algorithm, args.dataset)
 
     # print essential parameters info
     print("=" * 50)

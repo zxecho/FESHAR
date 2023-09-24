@@ -60,7 +60,7 @@ def args_parser():
     parser.add_argument('-tth', "--time_threthold", type=float, default=10000,
                         help="The threthold for droping slow clients")
     # 攻击与防御测试
-    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=True)
+    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=False)
     parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
     parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
     parser.add_argument('-nnc', "--num_new_clients", type=int, default=0)

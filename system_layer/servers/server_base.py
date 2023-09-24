@@ -7,7 +7,7 @@ import time
 import random
 
 from infrastructure_layer.read_client_data import read_client_data
-from infrastructure_layer.plot_data import plot_resutls
+from infrastructure_layer.plot_data import plot_resutls, plot_psnr
 
 from cross_layer.security_monitor import DLG
 
@@ -83,6 +83,8 @@ class Server(object):
         self.dlg_eval = args.dlg_eval
         self.dlg_gap = args.dlg_gap
         self.batch_num_per_client = args.batch_num_per_client
+        # 用于保存DLG的计算结果
+        self.rs_test_dlg = []
 
         # for new clients test
         self.num_new_clients = args.num_new_clients
@@ -200,6 +202,7 @@ class Server(object):
         model_path = os.path.join(model_path, self.algorithm + "_server" + ".pt")
         return os.path.exists(model_path)
 
+    # 保存实验结果
     def save_results(self, **kwargs):
         client_id = None
         if 'client_id' in kwargs.keys():
@@ -225,9 +228,14 @@ class Server(object):
                 hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
                 hf.create_dataset('rs_test_auc', data=self.rs_test_auc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
+                if self.dlg_eval:
+                    hf.create_dataset('rs_dlg_eval', data=self.rs_test_dlg)
 
             plot_resutls((self.rs_test_acc, self.rs_test_auc, self.rs_train_loss), result_path,
                          algo + '_{}'.format(self.times))
+
+            if self.dlg_eval:
+                plot_psnr(self.rs_test_dlg, result_path, algo + '_psnr_{}'.format(self.times))
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):
@@ -364,12 +372,13 @@ class Server(object):
                 cnt += 1
 
             # items.append((client_model, origin_grad, target_inputs))
-
+        psnr = psnr_val / cnt
         if cnt > 0:
-            print('PSNR value is {:.2f} dB'.format(psnr_val / cnt))
+            print('PSNR value is {:.2f} dB'.format(psnr))
         else:
             print('PSNR error')
 
+        self.rs_test_dlg.append(psnr)
         # self.save_item(items, f'DLG_{R}')
 
     def set_new_clients(self, clientObj):

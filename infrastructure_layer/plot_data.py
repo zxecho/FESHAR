@@ -28,6 +28,21 @@ def plot_resutls(resutls, results_save_path, name):
     # plt.show()
 
 
+def plot_psnr(results, results_save_path, name):
+    psnr = results
+    x_len = np.arange(len(psnr))
+
+    fig, axs = plt.subplots(1, 1, figsize=(3, 3))
+
+    axs.plot(x_len, psnr)
+    axs.set_xlabel('Conmunication#')
+    axs.set_ylabel('PSNR')
+    axs.grid(True)
+
+    fig.tight_layout()
+    plt.savefig(results_save_path + name + '.jpg')
+
+
 if __name__ == '__main__':
     results = ([1, 2, 3], [1, 5, 6], [2, 3, 4])
     dir = './'
