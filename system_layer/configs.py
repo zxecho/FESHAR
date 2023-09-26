@@ -7,7 +7,7 @@ def args_parser():
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='mnist/non-iid_dir_ex(dir=0.1)',
+    parser.add_argument('--dataset', type=str, default='mnist/non_iid(n100nc10d0.1)',
                         help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
@@ -20,16 +20,16 @@ def args_parser():
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
     # 服务器实验参数设置
-    parser.add_argument('-jr', "--join_ratio", type=float, default=0.5, help="Ratio of clients per round")
-    parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
+    parser.add_argument('-jr', "--join_ratio", type=float, default=0.1, help="Ratio of clients per round")
+    parser.add_argument('-nc', "--num_clients", type=int, default=100, help="Total number of clients")
     parser.add_argument('-nb', "--num_classes", type=int, default=10)
     parser.add_argument('-gr', "--global_rounds", type=int, default=50)
     parser.add_argument('-rjr', "--random_join_ratio", type=bool, default=False,
                         help="Random ratio of clients per round")
     parser.add_argument('-ab', "--auto_break", type=bool, default=False)
     # 参与客户端参数设置
-    parser.add_argument('-ls', "--local_steps", type=int, default=5)
-    parser.add_argument('-lbs', "--batch_size", type=int, default=8)
+    parser.add_argument('-ls', "--local_steps", type=int, default=1)
+    parser.add_argument('-lbs', "--batch_size", type=int, default=10)
     parser.add_argument('-opt', "--optimizer", type=str, default="SGD")
     parser.add_argument('-lfc', "--loss_fc", type=str, default="cross_entropy")
     parser.add_argument('-lrs', "--lr_scheduler", type=str, default="Exponential")
@@ -37,7 +37,7 @@ def args_parser():
     parser.add_argument('-lopt', "--local_per_optimizer", type=str, default="SGD")
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
-    parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.0005, help="Local learning rate")
+    parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.005, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
@@ -60,7 +60,8 @@ def args_parser():
     parser.add_argument('-tth', "--time_threthold", type=float, default=10000,
                         help="The threthold for droping slow clients")
     # 攻击与防御测试
-    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=False)
+    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=True)
+    parser.add_argument('-dlg_method', "--dlg_method", type=str, default='iDLG', choices=['DLG', 'iDLG'])
     parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
     parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
     parser.add_argument('-nnc', "--num_new_clients", type=int, default=0)

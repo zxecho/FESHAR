@@ -9,16 +9,13 @@ from exps.dataset_utils import check, separate_data, split_data, save_file
 
 random.seed(1)
 np.random.seed(1)
-num_clients = 20
-num_classes = 10
-dir_path = "mnist/non-iid_dir_ex/"
 
 
 # Allocate data to users
-def generate_mnist(dir_path, num_clients, num_classes, niid=False, real=True, partition=None):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-
+def generate_mnist(raw_data_path, dataset_name, num_clients, num_classes, niid=False, real=True, partition=None):
+    # if not os.path.exists(dir_path):
+    #     os.makedirs(dir_path)
+    dir_path = raw_data_path + dataset_name + "/"
     # Setup directory for train/test data
     config_path = dir_path + "config.json"
     train_path = dir_path + "train/"
@@ -38,9 +35,9 @@ def generate_mnist(dir_path, num_clients, num_classes, niid=False, real=True, pa
                                     transforms.Normalize([0.5], [0.5])])
 
     trainset = torchvision.datasets.MNIST(
-        root=dir_path + "rawdata", train=True, download=True, transform=transform)
+        root=raw_data_path + "rawdata", train=True, download=True, transform=transform)
     testset = torchvision.datasets.MNIST(
-        root=dir_path + "rawdata", train=False, download=True, transform=transform)
+        root=raw_data_path + "rawdata", train=False, download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=len(trainset.data), shuffle=False)
     testloader = torch.utils.data.DataLoader(
@@ -79,7 +76,13 @@ if __name__ == "__main__":
     # partition = sys.argv[3] if sys.argv[3] != "-" else None
 
     niid = True
-    real = False
+    real = True
     partition = 'dir'
 
-    generate_mnist(dir_path, num_clients, num_classes, niid, real, partition)
+    num_clients = 100
+    num_classes = 10
+    raw_data_path = "mnist/"
+
+    dataset_name = 'non_iid'
+
+    generate_mnist(raw_data_path, dataset_name, num_clients, num_classes, niid, real, partition)

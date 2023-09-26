@@ -9,7 +9,7 @@ import random
 from infrastructure_layer.read_client_data import read_client_data
 from infrastructure_layer.plot_data import plot_resutls, plot_psnr
 
-from cross_layer.security_monitor import DLG
+from cross_layer.security_monitor import DLG, iDLG
 
 
 class Server(object):
@@ -81,6 +81,7 @@ class Server(object):
 
         # for attack test
         self.dlg_eval = args.dlg_eval
+        self.dlg_method = args.dlg_method
         self.dlg_gap = args.dlg_gap
         self.batch_num_per_client = args.batch_num_per_client
         # 用于保存DLG的计算结果
@@ -365,8 +366,11 @@ class Server(object):
                     y = y.to(self.device)
                     output = client_model(x)
                     target_inputs.append((x, output))
+            if self.dlg_method == 'DLG':
+                d = DLG(client_model, origin_grad, target_inputs)
+            elif self.dlg_method == 'iDLG':
+                d = iDLG(client_model, origin_grad, target_inputs)
 
-            d = DLG(client_model, origin_grad, target_inputs)
             if d is not None:
                 psnr_val += d
                 cnt += 1

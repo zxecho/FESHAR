@@ -55,6 +55,61 @@ def DLG(net, origin_grad, target_inputs):
                 optimizer.zero_grad()
 
                 dummy_pred = net(F.sigmoid(dummy_data))
+                # dummy_loss = criterion(dummy_pred, dummy_out)
+                dummy_loss = - torch.mean(torch.sum(torch.softmax(dummy_out, -1) * torch.log(torch.softmax(dummy_pred, -1)), dim=-1))
+                dummy_grad = torch.autograd.grad(dummy_loss, net.parameters(), create_graph=True)
+
+                grad_diff = 0
+                for gx, gy in zip(dummy_grad, origin_grad):
+                    grad_diff += ((gx - gy) ** 2).sum()
+                grad_diff.backward()
+
+                return grad_diff
+
+            optimizer.step(closure)
+
+        # plt.figure(figsize=(3*len(history), 4))
+        # for i in range(len(history)):
+        #     plt.subplot(1, len(history), i + 1)
+        #     plt.imshow(history[i])
+        #     plt.title("iter=%d" % (i * 10))
+        #     plt.axis('off')
+
+        # plt.savefig(f'dlg_{algo}_{cid}_{idx}' + '.pdf', bbox_inches="tight")
+
+        history.append(F.sigmoid(dummy_data).data.cpu().numpy())
+
+        p = psnr(history[0], history[2])
+        if not math.isnan(p):
+            psnr_val += p
+            cnt += 1
+
+    if cnt > 0:
+        return psnr_val / cnt
+    else:
+        return None
+
+
+def iDLG(net, origin_grad, target_inputs):
+    criterion = torch.nn.MSELoss()
+    cnt = 0
+    psnr_val = 0
+    original_dy_dx = list((_.detach().clone() for _ in origin_grad))
+    for idx, (gt_data, gt_out) in enumerate(target_inputs):
+        # generate dummy data and label
+        dummy_data = torch.randn_like(gt_data, requires_grad=True)
+        dummy_out = torch.randn_like(gt_out, requires_grad=True)
+
+        optimizer = optimizer = torch.optim.LBFGS([dummy_data, ])
+        # predict the ground-truth label
+        label_pred = torch.argmin(torch.sum(original_dy_dx[-2], dim=-1), dim=-1).detach().reshape((1,)).requires_grad_(False)
+
+        history = [gt_data.data.cpu().numpy(), F.sigmoid(dummy_data).data.cpu().numpy()]
+        for iters in range(100):
+            def closure():
+                optimizer.zero_grad()
+
+                dummy_pred = net(F.sigmoid(dummy_data))
                 dummy_loss = criterion(dummy_pred, dummy_out)
                 dummy_grad = torch.autograd.grad(dummy_loss, net.parameters(), create_graph=True)
 
