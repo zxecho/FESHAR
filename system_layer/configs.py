@@ -44,6 +44,7 @@ def args_parser():
     parser.add_argument('-ld', "--learning_rate_decay", type=bool, default=False)
     # 系统设置
     parser.add_argument('-pv', "--prev", type=int, default=0, help="Previous Running times")
+    parser.add_argument('-sf', "--save_frep", type=int, default=20, help="Rounds gap for saving local model")
     parser.add_argument('-eg', "--eval_gap", type=int, default=1, help="Rounds gap for evaluation")
     # 额外隐私保护策略
     parser.add_argument('-dp', "--privacy", type=bool, default=False, help="differential privacy")

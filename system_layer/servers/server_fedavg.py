@@ -30,6 +30,8 @@ class FedAvg(Server):
 
             for client in self.selected_clients:
                 client.train()
+                if i % self.save_freq == 0:
+                    client.save_local_model()
 
             # threads = [Thread(target=client.train)
             #            for client in self.selected_clients]

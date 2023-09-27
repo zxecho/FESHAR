@@ -88,6 +88,13 @@ class Client(object):
             target_param.data = param.data.clone()
             # target_param.grad = param.grad.clone()
 
+    def save_local_model(self):
+        model_path = os.path.join("models", self.dataset)
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
+        model_path = os.path.join(model_path, self.algorithm + "_client_{}".format(self.id) + ".pt")
+        torch.save(self.model, model_path)
+
     def update_parameters(self, model, new_params):
         for param, new_param in zip(model.parameters(), new_params):
             param.data = new_param.data.clone()
