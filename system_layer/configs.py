@@ -1,4 +1,7 @@
 import argparse
+import os
+
+
 
 
 def args_parser():
@@ -32,6 +35,7 @@ def args_parser():
     parser.add_argument('-lbs', "--batch_size", type=int, default=10)
     parser.add_argument('-opt', "--optimizer", type=str, default="SGD")
     parser.add_argument('-lfc', "--loss_fc", type=str, default="cross_entropy")
+    parser.add_argument('--weight_decay', type=float, default=1e-4, help="weight decay for optimizer (default: 1e-4)")
     parser.add_argument('-lrs', "--lr_scheduler", type=str, default="Exponential")
     parser.add_argument('-lpo', "--local_per_opt", type=bool, default=False, help='local personalization optim')
     parser.add_argument('-lopt', "--local_per_optimizer", type=str, default="SGD")
@@ -111,3 +115,37 @@ def args_parser():
 
     args = parser.parse_args()
     return args
+
+
+def setup_network_input(args):
+    if args.model_name == "lenet5":
+        # extractor input size [3*32*32]
+        args.image_size = 32
+        # extractor ouput size [16*5*5]
+        args.feature_num = 16
+        args.feature_size = 5
+    elif args.model_name == "alexnet":
+        # extractor input size [3*224*224]
+        args.image_size = 224
+        # extractor ouput size [192*13*13]
+        args.feature_num = 192
+        args.feature_size = 13
+    elif args.model_name == "resnet18":
+        # extractor input size [3*224*224]
+        args.image_size = 224
+        # extractor ouput size [128*28*28]
+        args.feature_num = 128
+        args.feature_size = 28
+
+
+def setup_result_saving_path(args):
+    if args.algorithm == "fedcg" or args.algorithm == "fedcg_w":
+        args.name = args.algorithm + '_' + args.dataset + str(
+            args.num_clients) + '_' + args.model_name + '_' + args.distance  # + '_' + str(args.seed)
+    else:
+        args.name = args.algorithm + '_' + args.dataset + str(
+            args.num_clients) + '_' + args.model_name  # + '_' + str(args.seed)
+    args.dir = './results/' + args.save_folder_name + '/' + 'bs' + str(args.batch_size) + 'lr' + str(
+        args.local_learning_rate) + 'wd' + str(args.weight_decay)
+    args.checkpoint_dir = os.path.join(args.dir, args.name, 'checkpoint')
+    os.makedirs(args.checkpoint_dir, exist_ok=True)

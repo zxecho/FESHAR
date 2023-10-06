@@ -11,6 +11,7 @@ import torch
 # facial expression recognition experiments
 from system_layer.servers.GAN_Task.ACGAN_server import FedACGAN
 from system_layer.servers.GAN_Task.FedCG_server import FedCG
+from system_layer.servers.GAN_Task.FedACG_amp_server import FedACGAN
 from system_layer.servers.server_local import Local
 # 载入模型
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
@@ -57,6 +58,8 @@ def run(args):
             server = FedCG(args, i)
         elif args.algorithm == 'only_local':
             server = Local(args, i)
+        elif args.algorithm == 'fedacg_amp':
+            server = FedACGAN(args, i)
         else:
             raise NotImplementedError
 
@@ -89,7 +92,7 @@ if __name__ == '__main__':
 
     args = args_parser()
 
-    with open('./system_layer/configs/fedcg_config.yaml', encoding='utf-8') as f:
+    with open('./system_layer/configs/gan_ex1_config.yaml', encoding='utf-8') as f:
         data_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     # general config settings
@@ -115,7 +118,7 @@ if __name__ == '__main__':
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_{}_exp1'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_{}_test_exp1'.format(args.model_name, args.algorithm, param)
 
         # initial network input
         setup_network_input(args)

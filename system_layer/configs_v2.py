@@ -22,7 +22,7 @@ def args_parser():
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
     # 服务器实验参数设置
-    parser.add_argument('-jr', "--join_ratio", type=float, default=0.5, help="Ratio of clients per round")
+    parser.add_argument('-jr', "--join_ratio", type=float, default=0.1, help="Ratio of clients per round")
     parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
     parser.add_argument('-nb', "--num_classes", type=int, default=10)
     parser.add_argument('-gr', "--global_rounds", type=int, default=200)
@@ -63,6 +63,14 @@ def args_parser():
                                                                                "at each round according to time cost")
     parser.add_argument('-tth', "--time_threthold", type=float, default=10000, help="The threthold for droping slow "
                                                                                     "clients")
+
+    # 攻击与防御测试
+    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=False)
+    parser.add_argument('-dlg_method', "--dlg_method", type=str, default='iDLG', choices=['DLG', 'iDLG'])
+    parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
+    parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
+    parser.add_argument('-nnc', "--num_new_clients", type=int, default=0)
+    parser.add_argument('-fte', "--fine_tuning_epoch", type=int, default=0)
 
     # ==========================================
     #  具体相关算法参数设置
@@ -122,7 +130,7 @@ def args_parser():
     parser.add_argument('--input_channels', type=int, default=1, help="Input image channels")
     parser.add_argument('--noise_dim', type=int, default=100,
                         help="the noise dim for the generator input (default: 100)")
-    parser.add_argument('--latent_dim', type=int, default=128, help="noise latent dim for generation")
+    parser.add_argument('--latent_dim', type=int, default=100, help="noise latent dim for generation")
     parser.add_argument('--local_g_optimizer', type=str, default='adam', help="Fed G optimizer")
     parser.add_argument('--local_d_optimizer', type=str, default='adam', help="Fed D optimizer")
     parser.add_argument('--local_g_lr', type=float, default=1e-4, help="Fed G learning rate")
@@ -155,7 +163,7 @@ def setup_network_input(args):
         args.image_size = 32
         # extractor ouput size [16*5*5]
         args.feature_num = 16
-        args.feature_size = 5
+        args.feature_size = 4
     elif args.model_name == "alexnet":
         # extractor input size [3*224*224]
         args.image_size = 224

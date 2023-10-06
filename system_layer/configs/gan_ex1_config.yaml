@@ -1,13 +1,13 @@
 general_config:
   times: 1
-  model_name: simplenet      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
-  algorithm: ACGAN     # FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP
+  model_name: lenet5      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
+  algorithm: fedacg_amp     # FedAvg / FedPer / FedProx / ditto / FedRep / FedAMP
   global_rounds: 100
   join_ratio: 0.2
   # optimization related
-  optimizer: AdamW      # SGD / AdamW / Adam
+  optimizer: SGD      # SGD / AdamW / Adam
   batch_size: 32
-  local_steps: 5
+  local_steps: 1
   local_per_opt: False
   lr_scheduler: Exponential
 # datasets related
@@ -15,7 +15,7 @@ general_config:
 #  dataset: cifar10/
 #  num_clients: 20
 mnist:
-  dataset: mnist/
+  dataset: mnist/non_iid(n100nc10d0.1)
   input_size: 28
   input_channels: 1
-  num_clients: 20
+  num_clients: 100
