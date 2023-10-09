@@ -28,7 +28,7 @@ class FedACGAN(GAN_server):
                 self.evaluate()
 
             for client in self.selected_clients:
-                client.train()
+                client.train(current_round=i)
 
             # threads = [Thread(target=client.train)
             #            for client in self.selected_clients]

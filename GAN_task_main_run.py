@@ -43,7 +43,8 @@ def run(args):
             args.D_model = Discriminator(input_channels=args.input_channels, n_classes=args.num_classes,
                                          img_size=args.input_size).to(args.device)
         elif args.model_name == 'lenet5':
-            from algo_layer.models.GAN_modules import Generator, Discriminator
+            from algo_layer.models.GAN_modules import Generator
+            from algo_layer.models.GAN_modules import Conditional_D as Discriminator
             args.G_model = Generator(n_classes=args.num_classes,
                                      latent_dim=args.noise_dim,
                                      feature_num=args.feature_num)

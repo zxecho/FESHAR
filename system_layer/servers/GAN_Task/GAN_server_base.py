@@ -48,7 +48,9 @@ class GAN_server(Server):
             client.send_time_cost['num_rounds'] += 1
             client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
 
-    def receive_models(self):
+    def receive_models(self, modules=None):
+        if modules is None:
+            modules = ['generator', 'discriminator']
         assert (len(self.selected_clients) > 0)
 
         active_clients = random.sample(
@@ -72,7 +74,7 @@ class GAN_server(Server):
         for i, w in enumerate(self.uploaded_weights):
             self.uploaded_weights[i] = w / tot_samples
 
-    def aggregate_parameters(self, modules=None):
+    def aggregate_parameters_old(self, modules=None):
         if modules is None:
             modules = ['generator', 'discriminator']
         assert (len(self.uploaded_models) > 0)
@@ -87,6 +89,30 @@ class GAN_server(Server):
 
             for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
                 self.add_parameters(w, client_model[module], module)
+
+    def aggregate_parameters(self, modules=None):
+        if modules is None:
+            modules = ['generator', 'discriminator']
+        assert (len(self.uploaded_models) > 0)
+
+        for module in modules:
+            avg_param = {}
+            weights = []
+            params = []
+            # 遍历每一个客户端
+            for w, client in zip(self.uploaded_weights, self.uploaded_models):
+                # 将客户端的网络参数加载到avg_param中
+                weights.append(w)
+                params.append(client[module].state_dict())
+
+            # 计算每一个客户端的平均参数
+            for key in params[0].keys():
+                avg_param[key] = params[0][key] * weights[0]
+                # 遍历每一个客户端
+                for idx in range(1, len(self.uploaded_models)):
+                    avg_param[key] += params[idx][key] * weights[idx]
+            # 将平均参数加载到global_net中
+            self.global_model[module].load_state_dict(avg_param)
 
     def add_parameters(self, w, client_model, module):
         # if module_name == 'G':
