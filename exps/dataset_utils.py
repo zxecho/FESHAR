@@ -5,9 +5,8 @@ import gc
 from sklearn.model_selection import train_test_split
 from infrastructure_layer.basic_utils import mkdir
 
-batch_size = 4
+batch_size = 8
 train_size = 0.75
-least_samples = 6  # batch_size / (1 - train_size)
 alpha = 0.1
 
 
@@ -38,7 +37,12 @@ def check(config_path, train_path, test_path, num_clients, num_classes, niid=Fal
 
 
 def separate_data(data, num_clients, num_classes, niid=False, real=True, partition=None,
-                  balance=False, class_per_client=2):
+                  balance=False, least_samples=100, class_per_client=2):
+    """
+    Split data into two part: training and testing.
+
+    least_samples: the least samples in a class # batch_size / (1 - train_size)
+    """
     X = [[] for _ in range(num_clients)]
     y = [[] for _ in range(num_clients)]
     statistic = [[] for _ in range(num_clients)]
@@ -46,39 +50,51 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
     dataset_content, dataset_label = data
 
     if partition is None or partition == "noise":
+        # split dataset into classes
         dataset = []
         for i in range(num_classes):
             idx = dataset_label == i
             dataset.append(dataset_content[idx])
 
+        # if niid is False or real is True, set class_per_client to num_classes
         if not niid or real:
             class_per_client = num_classes
 
+        # set class_num_client to the number of classes for each client
         class_num_client = [class_per_client for _ in range(num_clients)]
+        # for each class, select clients to be included in the dataset
         for i in range(num_classes):
             selected_clients = []
             for client in range(num_clients):
                 if class_num_client[client] > 0:
                     selected_clients.append(client)
+            # if niid is True and real is False, select clients based on the number of classes
             if niid and not real:
                 selected_clients = selected_clients[:int(num_clients / num_classes * class_per_client)]
 
+            # calculate the number of samples for each client
             num_all = len(dataset[i])
             num_clients_ = len(selected_clients)
+            # if niid is True and real is True, select the number of clients randomly
             if niid and real:
                 num_clients_ = np.random.randint(1, len(selected_clients))
             num_per = num_all / num_clients_
+            # if balance is True, set the number of samples for each client to the number of samples for each client
             if balance:
                 num_samples = [int(num_per) for _ in range(num_clients_ - 1)]
+            # if balance is False, set the number of samples for each client randomly
             else:
-                num_samples = np.random.randint(max(num_per / 10, least_samples / num_classes), num_per,
-                                                num_clients_ - 1).tolist()
+                num_samples = np.random.randint(max(num_per / 10, least_samples / num_classes),
+                                                num_per, num_clients_ - 1).tolist()
+            # set the number of samples for each client
             num_samples.append(num_all - sum(num_samples))
 
+            # if niid is True, select clients randomly
             if niid:
                 # each client is not sure to have all the labels
                 selected_clients = list(np.random.choice(selected_clients, num_clients_, replace=False))
 
+            # assign data to each client
             idx = 0
             for client, num_sample in zip(selected_clients, num_samples):
                 if len(X[client]) == 0:
@@ -105,6 +121,7 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
         N = len(dataset_label)
         net_dataidx_map = {}
 
+        # Create a batch of clients
         while min_size <= least_samples:
             idx_batch = [[] for _ in range(num_clients)]
             for k in range(K):
@@ -118,16 +135,19 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
                 idx_batch = [idx_j + idx.tolist() for idx_j, idx in zip(idx_batch, np.split(idx_k, proportions))]
                 min_size = min([len(idx_j) for idx_j in idx_batch])
 
+        # Create a dictionary to store the data and labels of each client
         for j in range(num_clients):
             np.random.shuffle(idx_batch[j])
             net_dataidx_map[j] = idx_batch[j]
 
         # additional codes
+        # Create a dictionary to store the data and labels of each client
         for client in range(num_clients):
             idxs = net_dataidx_map[client]
             X[client] = dataset_content[idxs]
             y[client] = dataset_label[idxs]
 
+            # Create a list to store the number of samples of each label
             for i in np.unique(y[client]):
                 statistic[client].append((int(i), int(sum(y[client] == i))))
     else:
@@ -136,6 +156,7 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
     del data
     # gc.collect()
 
+    # Print the number of data and labels of each client
     for client in range(num_clients):
         print(f"Client {client}\t Size of data: {len(X[client])}\t Labels: ", np.unique(y[client]))
         print(f"\t\t Samples of labels: ", [i for i in statistic[client]])

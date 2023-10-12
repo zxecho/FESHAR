@@ -256,4 +256,4 @@ class ACGAN_Clinet(GAN_client):
                 pred = self.model["classifier"](feat)
                 correct += torch.sum((torch.argmax(pred, dim=1) == y).float())
                 total += x.size(0)
-        return (correct / total).item(), total, 0
+        return correct.item(), total, 0
