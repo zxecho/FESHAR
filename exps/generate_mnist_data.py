@@ -5,7 +5,7 @@ import random
 import torch
 import torchvision
 import torchvision.transforms as transforms
-from exps.dataset_utils import check, separate_data, split_data, save_file
+from exps.dataset_utils import check, separate_data, split_data, save_file, save_each_file
 
 random.seed(1)
 np.random.seed(1)
@@ -112,14 +112,42 @@ def generate_mnist4robot(raw_data_path, dataset_name, num_clients, num_classes, 
 
     # for training dataset
     train_X, train_y, train_statistic = separate_data((train_dataset_image, train_dataset_label), num_clients, num_classes,
-                                    niid, real, partition, balance=True, least_samples=300)
+                                    niid, real, partition, balance=True)
     # for test dataset
     test_X, test_y, test_statistic = separate_data((test_dataset_image, test_dataset_label), num_clients, num_classes,
                                     niid=False, real=False, partition=None, balance=True)
 
-    train_data, test_data = split_data(X, y)
-    save_file(config_path, train_path, test_path, train_data, test_data, num_clients, num_classes,
-              statistic, niid, real, partition)
+    def split_each_data(X_train, y_train, X_test, y_test):
+        # Split dataset
+        train_data, test_data = [], []
+        num_samples = {'train': [], 'test': []}
+
+        # 该client的标签个数
+        n_c = len(y_train)
+        for i in range(n_c):
+            train_data.append({'x': X_train[i], 'y': y_train[i]})
+            num_samples['train'].append(len(y_train[i]))
+            test_data.append({'x': X_test[i], 'y': y_test[i]})
+            num_samples['test'].append(len(y_test[i]))
+
+        print("Total number of samples:", sum(num_samples['train'] + num_samples['test']))
+        print("The number of train samples:", num_samples['train'])
+        print("The number of test samples:", num_samples['test'])
+        print()
+        del X_train, y_train, X_test, y_test
+        # gc.collect()
+
+        return train_data, test_data
+
+    train_data, test_data = split_each_data(train_X, train_y, test_X, test_y)
+
+    # save train dataset and config
+    save_each_file(config_path, train_path, train_data, num_clients, num_classes, train_statistic,
+                   niid, real, partition, 'train')
+
+    # save test dataset and config
+    save_each_file(config_path, test_path, test_data, num_clients, num_classes, test_statistic,
+                   niid, real, partition, 'test')
 
 
 if __name__ == "__main__":

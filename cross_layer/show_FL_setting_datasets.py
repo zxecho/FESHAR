@@ -19,8 +19,12 @@ def loadjson(fpt, name):
 
 
 # 载入chap2实验数据统计
-def load_dataset_stats(dataset):
-    data_js = loadjson('../exps/' + dataset, 'config')
+def load_dataset_stats(dataset, config_name=''):
+    if config_name is not None:
+        config_name = config_name + '_' + 'config'
+    else:
+        config_name = 'config'
+    data_js = loadjson('../exps/' + dataset, config_name)
     num_clients = data_js['num_clients']
     num_classes = data_js['num_classes']
     stats = data_js['Size of samples for labels in clients']
@@ -41,7 +45,7 @@ def load_dataset_stats(dataset):
 # 绘制构造的数据示意图
 def plot_dataset_stats(dataset):
     file_path = '../exps/{}'.format(dataset)
-    num_clients = load_dataset_stats(dataset)
+    num_clients = load_dataset_stats(dataset, 'test')
 
     stat_np_data = np.load('../exps/' + dataset + '/' + 'stats.npz')
     stats_data = stat_np_data['data']
@@ -215,7 +219,7 @@ def plot_fed_avg_acc(dataset_name='mnist', FL_param='acc', exp_select='E', inser
 
 
 if __name__ == '__main__':
-    dataset = 'FER/jaffe'
+    dataset = 'mnist/non_iid4robot(n100nc10d0.1)'
     plot_dataset_stats(dataset)
     # load_FedFER_datastats()
     # plot_fed_avg_acc(dataset_name=dataset, FL_param='loss', exp_select='EKB', insert_zone=True)

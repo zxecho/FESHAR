@@ -7,6 +7,7 @@ from infrastructure_layer.basic_utils import mkdir
 
 batch_size = 8
 train_size = 0.75
+least_samples = int(batch_size / (1 - train_size))
 alpha = 0.1
 
 
@@ -37,7 +38,7 @@ def check(config_path, train_path, test_path, num_clients, num_classes, niid=Fal
 
 
 def separate_data(data, num_clients, num_classes, niid=False, real=True, partition=None,
-                  balance=False, least_samples=100, class_per_client=2):
+                  balance=False, class_per_client=2):
     """
     Split data into two part: training and testing.
 
@@ -81,7 +82,7 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
             num_per = num_all / num_clients_
             # if balance is True, set the number of samples for each client to the number of samples for each client
             if balance:
-                num_samples = [int(num_per) for _ in range(num_clients_ - 1)]
+                num_samples = [int(num_per) for _ in range(num_clients_)]
             # if balance is False, set the number of samples for each client randomly
             else:
                 num_samples = np.random.randint(max(num_per / 10, least_samples / num_classes),
@@ -129,9 +130,13 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
                 np.random.shuffle(idx_k)
                 proportions = np.random.dirichlet(np.repeat(alpha, num_clients))
                 # Balance
+                # 将小于N/Nk的客户端该标签的数据概率设置为1，其余设置为0
                 proportions = np.array([p * (len(idx_j) < N / num_clients) for p, idx_j in zip(proportions, idx_batch)])
+                # 再重新归一化
                 proportions = proportions / proportions.sum()
+                # 计算对应概率百分比的数量
                 proportions = (np.cumsum(proportions) * len(idx_k)).astype(int)[:-1]
+                # 根据概率划分数据，取出该数据
                 idx_batch = [idx_j + idx.tolist() for idx_j, idx in zip(idx_batch, np.split(idx_k, proportions))]
                 min_size = min([len(idx_j) for idx_j in idx_batch])
 
@@ -171,13 +176,8 @@ def split_data(X, y):
     num_samples = {'train': [], 'test': []}
 
     for i in range(len(y)):
-        unique, count = np.unique(y[i], return_counts=True)
-        if min(count) > 1:
-            X_train, X_test, y_train, y_test = train_test_split(
-                X[i], y[i], train_size=train_size, shuffle=False)
-        else:
-            X_train, X_test, y_train, y_test = train_test_split(
-                X[i], y[i], train_size=train_size, shuffle=False)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X[i], y[i], train_size=train_size, shuffle=False)
 
         train_data.append({'x': X_train, 'y': y_train})
         num_samples['train'].append(len(y_train))
@@ -221,9 +221,41 @@ def save_file(config_path, train_path, test_path, train_data, test_data, num_cli
     for idx, test_dict in enumerate(test_data):
         with open(test_path + '/' + str(idx) + '.npz', 'wb') as f:
             np.savez_compressed(f, data=test_dict)
+    # save config file
     path_dir_list = config_path.split('/')
     config_path = os.path.join(path_dir_list[0], path_dir_list[1] + '(n{}nc{}d{})'.format(num_clients, num_classes, alpha)) + "/config.json"
     with open(config_path, 'w') as f:
         ujson.dump(config, f)
 
     print("Finish generating dataset.\n")
+
+
+def save_each_file(config_path, data_path, data, num_clients, num_classes, statistic,
+                   niid=False, real=True, partition=None, mark='train'):
+    config = {
+        'num_clients': num_clients,
+        'num_classes': num_classes,
+        'non_iid': niid,
+        'real_world': real,
+        'partition': partition,
+        'Size of samples for labels in clients': statistic,
+        'alpha': alpha,
+        'batch_size': batch_size,
+    }
+
+    # gc.collect()
+    print("Saving to disk.\n")
+    path_dir_list = data_path.split('/')
+    train_path = os.path.join(path_dir_list[0],
+                              path_dir_list[1] + '(n{}nc{}d{})'.format(num_clients, num_classes, alpha),
+                              path_dir_list[2])
+    mkdir(train_path)
+    for idx, train_dict in enumerate(data):
+        with open(train_path + '/' + str(idx) + '.npz', 'wb') as f:
+            np.savez_compressed(f, data=train_dict)
+
+    # save config file
+    path_dir_list = config_path.split('/')
+    config_path = os.path.join(path_dir_list[0], path_dir_list[1] + '(n{}nc{}d{})'.format(num_clients, num_classes, alpha)) + f"/{mark}_config.json"
+    with open(config_path, 'w') as f:
+        ujson.dump(config, f)

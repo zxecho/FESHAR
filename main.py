@@ -146,6 +146,8 @@ if __name__ == '__main__':
     # print essential parameters info
     print("=" * 50)
 
+
+
     print("Algorithm: {}".format(args.algorithm))
     print("Local batch size: {}".format(args.batch_size))
     print("Local steps: {}".format(args.local_steps))
