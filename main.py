@@ -18,6 +18,7 @@ from system_layer.servers.server_babu import FedBABU
 from system_layer.servers.server_fedprox import FedProx
 from system_layer.servers.server_ditto import Ditto
 from system_layer.servers.server_amp import FedAMP
+from system_layer.servers.server_fedgen import FedGen
 from system_layer.servers.FER_Task.my_FER_server import FedPLAG
 from system_layer.servers.only_local_train import OnlyLocalTrain_server
 # 载入模型
@@ -35,7 +36,6 @@ from cross_layer.results_monitor import average_data, local_average_results
 from cross_layer.process_logging import save_args_config
 
 from infrastructure_layer.basic_utils import count_vars_module
-
 
 
 def run(args):
@@ -73,6 +73,11 @@ def run(args):
             server = FedAvg(args, i)
         elif args.algorithm == "FedDyn":
             server = FedDyn(args, i)
+        elif args.algorithm == "FedGen":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = FedGen(args, i)
         elif args.algorithm == 'only_local':
             server = OnlyLocalTrain_server(args, i)
         elif args.algorithm == "FedPLAG":
@@ -141,12 +146,10 @@ if __name__ == '__main__':
     total_start = time.time()
 
     args = args_parser()
-    args.save_folder_name = '{}_{}_{}_idlg_baseline'.format(args.model_name, args.algorithm, args.dataset)
+    args.save_folder_name = '{}_{}_{}_baseline'.format(args.model_name, args.algorithm, args.dataset)
 
     # print essential parameters info
     print("=" * 50)
-
-
 
     print("Algorithm: {}".format(args.algorithm))
     print("Local batch size: {}".format(args.batch_size))

@@ -3,7 +3,7 @@ from system_layer.clients.GAN_Task.FedACG_amp_client import ACGAN_Clinet
 from system_layer.servers.GAN_Task.GAN_server_base import GAN_server
 
 
-class FedACGAN(GAN_server):
+class FedACGAN_amp(GAN_server):
     def __init__(self, args, times):
         super().__init__(args, times)
         # select slow clients

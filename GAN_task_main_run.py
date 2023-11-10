@@ -9,9 +9,9 @@ import torch
 # 服务器server
 # 任务服务器模型算法
 # facial expression recognition experiments
-from system_layer.servers.GAN_Task.ACGAN_server import FedACGAN
 from system_layer.servers.GAN_Task.FedCG_server import FedCG
-from system_layer.servers.GAN_Task.FedACG_amp_server import FedACGAN
+from system_layer.servers.GAN_Task.FedACG_amp_server import FedACGAN_amp
+from system_layer.servers.GAN_Task.FedACGAN_server import FedACGAN
 from system_layer.servers.server_local import Local
 # 载入模型
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
@@ -53,14 +53,14 @@ def run(args):
                                          feature_size=args.feature_size)
 
         # 选择算法
-        if args.algorithm == 'acgan':
+        if args.algorithm == 'fed_acgan':
             server = FedACGAN(args, i)
         elif args.algorithm == 'fedcg':
             server = FedCG(args, i)
         elif args.algorithm == 'only_local':
             server = Local(args, i)
         elif args.algorithm == 'fedacg_amp':
-            server = FedACGAN(args, i)
+            server = FedACGAN_amp(args, i)
         else:
             raise NotImplementedError
 
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     args.times = general_params['times']
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']
+    args.joint_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
     args.local_steps = general_params['local_steps']

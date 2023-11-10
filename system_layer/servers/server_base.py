@@ -16,21 +16,14 @@ class Server(object):
     def __init__(self, args, times):
         # Set up the main attributes
         self.args = args
-        # Set the device to be used for the model
         self.device = args.device
-        # Set the dataset to be used for the model
         self.dataset = args.dataset
-        # Set the number of classes to be used for the model
         self.num_classes = args.num_classes
-        # Set the number of rounds to be used for the model
         self.global_rounds = args.global_rounds
         # Set the number of local steps to be used for the model
         self.local_steps = args.local_steps
-        # Set the batch size to be used for the model
         self.batch_size = args.batch_size
-        # Set the learning rate to be used for the model
         self.learning_rate = args.local_learning_rate
-        # Set the global model to be used for the model
         self.global_model = copy.deepcopy(args.model)
         # Set the number of clients to be used for the model
         self.num_clients = args.num_clients

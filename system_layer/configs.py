@@ -10,12 +10,12 @@ def args_parser():
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='mnist/non_iid(n100nc10d0.1)',
+    parser.add_argument('--dataset', type=str, default='mnist/non_iid4robot(n20nc10d0.1)',
                         help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
-    parser.add_argument('-algo', "--algorithm", type=str, default="FedAvg")
+    parser.add_argument('-algo', "--algorithm", type=str, default="FedGen")
     parser.add_argument('-mn', "--model_name", type=str, default="cnn")
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
@@ -23,10 +23,10 @@ def args_parser():
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
     # 服务器实验参数设置
-    parser.add_argument('-jr', "--join_ratio", type=float, default=0.1, help="Ratio of clients per round")
-    parser.add_argument('-nc', "--num_clients", type=int, default=100, help="Total number of clients")
+    parser.add_argument('-jr', "--join_ratio", type=float, default=0.25, help="Ratio of clients per round")
+    parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
     parser.add_argument('-nb', "--num_classes", type=int, default=10)
-    parser.add_argument('-gr', "--global_rounds", type=int, default=50)
+    parser.add_argument('-gr', "--global_rounds", type=int, default=200)
     parser.add_argument('-rjr', "--random_join_ratio", type=bool, default=False,
                         help="Random ratio of clients per round")
     parser.add_argument('-ab', "--auto_break", type=bool, default=False)
@@ -65,7 +65,7 @@ def args_parser():
     parser.add_argument('-tth', "--time_threthold", type=float, default=10000,
                         help="The threthold for droping slow clients")
     # 攻击与防御测试
-    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=True)
+    parser.add_argument('-dlg', "--dlg_eval", type=bool, default=False)
     parser.add_argument('-dlg_method', "--dlg_method", type=str, default='iDLG', choices=['DLG', 'iDLG'])
     parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
     parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
@@ -85,6 +85,13 @@ def args_parser():
                         help="Number of personalized training steps for pFedMe")
     parser.add_argument('-lrp', "--p_learning_rate", type=float, default=0.01,
                         help="personalized learning rate to caculate theta aproximately using K steps")
+    # FedGen
+    parser.add_argument('-nd', "--noise_dim", type=int, default=512)
+    parser.add_argument('-glr', "--generator_learning_rate", type=float, default=0.005)
+    parser.add_argument('-hd', "--hidden_dim", type=int, default=512)
+    parser.add_argument('-se', "--server_epochs", type=int, default=1000)
+    parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
+
     # FedFomo
     parser.add_argument('-M', "--M", type=int, default=5,
                         help="Server only sends M client models to one client at each round")

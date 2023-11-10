@@ -5,7 +5,7 @@ import gc
 from sklearn.model_selection import train_test_split
 from infrastructure_layer.basic_utils import mkdir
 
-batch_size = 8
+batch_size = 64
 train_size = 0.75
 least_samples = int(batch_size / (1 - train_size))
 alpha = 0.1

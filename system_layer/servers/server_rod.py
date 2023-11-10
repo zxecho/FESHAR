@@ -32,7 +32,7 @@ class FedROD(Server):
                 client.train()
 
             self.receive_models()
-
+            # DLG的privacy评估
             if self.dlg_eval and i%self.dlg_gap == 0:
                 self.call_dlg(i)
             self.aggregate_parameters()

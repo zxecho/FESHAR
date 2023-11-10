@@ -159,7 +159,7 @@ if __name__ == "__main__":
     real = True
     partition = 'dir'
 
-    num_clients = 100
+    num_clients = 20
     num_classes = 10
     raw_data_path = "mnist/"
 

@@ -1,7 +1,6 @@
 import time
-from system_layer.clients.GAN_Task.ACGAN_client import ACGAN_Clinet
+from system_layer.clients.GAN_Task.FedACGAN_client import clinet_ACGAN
 from system_layer.servers.GAN_Task.GAN_server_base import GAN_server
-from threading import Thread
 
 
 class FedACGAN(GAN_server):
@@ -9,7 +8,7 @@ class FedACGAN(GAN_server):
         super().__init__(args, times)
         # select slow clients
         self.set_slow_clients()
-        self.set_clients(ACGAN_Clinet)
+        self.set_clients(clinet_ACGAN)
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
@@ -29,7 +28,7 @@ class FedACGAN(GAN_server):
                 self.evaluate()
 
             for client in self.selected_clients:
-                client.train()
+                client.train(current_round=i)
 
             # threads = [Thread(target=client.train)
             #            for client in self.selected_clients]
@@ -37,8 +36,10 @@ class FedACGAN(GAN_server):
             # [t.join() for t in threads]
 
             self.receive_models()
-            # if self.dlg_eval and i % self.dlg_gap == 0:
-            #     self.call_dlg(i)
+
+            if self.dlg_eval and i % self.dlg_gap == 0:
+                self.call_dlg(i)
+
             self.aggregate_parameters()
 
             self.Budget.append(time.time() - s_t)

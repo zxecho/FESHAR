@@ -22,7 +22,7 @@ def args_parser():
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
     # 服务器实验参数设置
-    parser.add_argument('-jr', "--join_ratio", type=float, default=0.1, help="Ratio of clients per round")
+    parser.add_argument('-jr', "--join_ratio", type=float, default=0.25, help="Ratio of clients per round")
     parser.add_argument('-nc', "--num_clients", type=int, default=20, help="Total number of clients")
     parser.add_argument('-nb', "--num_classes", type=int, default=10)
     parser.add_argument('-gr', "--global_rounds", type=int, default=200)
