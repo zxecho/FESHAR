@@ -19,6 +19,8 @@ from system_layer.servers.server_fedprox import FedProx
 from system_layer.servers.server_ditto import Ditto
 from system_layer.servers.server_amp import FedAMP
 from system_layer.servers.server_fedgen import FedGen
+from system_layer.servers.server_fedcp import FedCP
+from system_layer.servers.server_gpfl import GPFL
 from system_layer.servers.FER_Task.my_FER_server import FedPLAG
 from system_layer.servers.only_local_train import OnlyLocalTrain_server
 # 载入模型
@@ -111,6 +113,16 @@ def run(args):
             server = Ditto(args, i)
         elif args.algorithm == "FedAMP":
             server = FedAMP(args, i)
+        elif args.algorithm == "FedCP":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = FedCP(args, i)
+        elif args.algorithm == "GPFL":
+            args.head = copy.deepcopy(args.model.head)
+            args.model.head = torch.nn.Identity()
+            args.model = BaseHeadSplit(args.model, args.head)
+            server = GPFL(args, i)
         else:
             raise NotImplementedError
 

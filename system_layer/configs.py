@@ -2,8 +2,6 @@ import argparse
 import os
 
 
-
-
 def args_parser():
     parser = argparse.ArgumentParser(description='PyTorch Federated Training')
     parser.add_argument('-log', "--logger", type=object, default=None, help="Log handler")
@@ -15,7 +13,7 @@ def args_parser():
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
-    parser.add_argument('-algo', "--algorithm", type=str, default="FedGen")
+    parser.add_argument('-algo', "--algorithm", type=str, default="GPFL")
     parser.add_argument('-mn', "--model_name", type=str, default="cnn")
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
@@ -48,7 +46,7 @@ def args_parser():
     parser.add_argument('-ld', "--learning_rate_decay", type=bool, default=False)
     # 系统设置
     parser.add_argument('-pv', "--prev", type=int, default=0, help="Previous Running times")
-    parser.add_argument('-sf', "--save_frep", type=int, default=20, help="Rounds gap for saving local model")
+    parser.add_argument('-sf', "--save_freq", type=int, default=20, help="Rounds gap for saving local model")
     parser.add_argument('-eg', "--eval_gap", type=int, default=1, help="Rounds gap for evaluation")
     # 额外隐私保护策略
     parser.add_argument('-dp', "--privacy", type=bool, default=False, help="differential privacy")
@@ -116,6 +114,8 @@ def args_parser():
     parser.add_argument('-s', "--rand_percent", type=int, default=80)
     parser.add_argument('-p', "--layer_idx", type=int, default=2,
                         help="More fine-graind than its original paper.")
+    # GPFL
+    parser.add_argument('-lamr', "--lamda_reg", type=float, default=0.0)
     # LLP
     parser.add_argument('-llp', "--llp", type=bool, default=True)
     parser.add_argument('-stemc', "--stem_channels", type=int, default=40)

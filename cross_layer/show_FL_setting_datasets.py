@@ -43,9 +43,9 @@ def load_dataset_stats(dataset, config_name=''):
 
 
 # 绘制构造的数据示意图
-def plot_dataset_stats(dataset):
+def plot_dataset_stats(dataset, mark=None):
     file_path = '../exps/{}'.format(dataset)
-    num_clients = load_dataset_stats(dataset, 'test')
+    num_clients = load_dataset_stats(dataset, mark)
 
     stat_np_data = np.load('../exps/' + dataset + '/' + 'stats.npz')
     stats_data = stat_np_data['data']
@@ -219,7 +219,7 @@ def plot_fed_avg_acc(dataset_name='mnist', FL_param='acc', exp_select='E', inser
 
 
 if __name__ == '__main__':
-    dataset = 'mnist/non_iid4robot(n100nc10d0.1)'
-    plot_dataset_stats(dataset)
+    dataset = 'cifar10/non_iid4robot(n20nc10d0.1)'
+    plot_dataset_stats(dataset, mark='train')
     # load_FedFER_datastats()
     # plot_fed_avg_acc(dataset_name=dataset, FL_param='loss', exp_select='EKB', insert_zone=True)

@@ -31,7 +31,7 @@ class FedAvg(Server):
             for client in self.selected_clients:
                 client.train()
                 if i % self.save_freq == 0:
-                    client.save_local_model()
+                    client.save_local_model(current_round=i)
 
             # threads = [Thread(target=client.train)
             #            for client in self.selected_clients]
@@ -44,8 +44,9 @@ class FedAvg(Server):
                 self.call_dlg(i)
 
             self.aggregate_parameters()
-
-            self.Budget.append(time.time() - s_t)
+            t = time.time() - s_t
+            self.Budget.append(t)
+            self.budget_dict[str(i)] = t
             print('-' * 25, 'time cost', '-' * 25, self.Budget[-1])
 
         print("\nBest global accuracy.")
@@ -53,10 +54,13 @@ class FedAvg(Server):
         #     self.rs_train_acc), min(self.rs_train_loss))
         print(max(self.rs_test_acc))
         print("\nAverage time cost per round.")
-        print(sum(self.Budget[1:]) / len(self.Budget[1:]))
+        avg_t_per_round = sum(self.Budget[1:]) / len(self.Budget[1:])
+        print(avg_t_per_round)
+        self.budget_dict['avg_t_per_round'] = avg_t_per_round
 
         self.save_results()
         self.save_global_model()
+        self.save_budget()
 
         if self.num_new_clients > 0:
             self.eval_new_clients = True

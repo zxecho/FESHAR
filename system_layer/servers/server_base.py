@@ -10,6 +10,8 @@ from infrastructure_layer.read_client_data import read_client_data
 from infrastructure_layer.plot_data import plot_resutls, plot_psnr
 
 from cross_layer.security_monitor import DLG, iDLG
+from infrastructure_layer.basic_utils import save2json
+
 
 
 class Server(object):
@@ -44,9 +46,9 @@ class Server(object):
         self.time_threthold = args.time_threthold
         # Set the save folder name to be used for the model
         self.save_folder_name = args.save_folder_name
+        self.save_freq = args.save_freq
         # Set the top count to be used for the model
         self.top_cnt = 100
-        # Set the auto break to be used for the model
         self.auto_break = args.auto_break
 
         # algo related params
@@ -88,6 +90,7 @@ class Server(object):
 
         # logging
         self.logger = args.logger
+        self.budget_dict = {}
 
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
@@ -230,6 +233,9 @@ class Server(object):
 
             if self.dlg_eval:
                 plot_psnr(self.rs_test_dlg, result_path, algo + '_psnr_{}'.format(self.times))
+
+    def save_budget(self):
+        save2json("./results/{}/".format(self.save_folder_name), self.budget_dict, 'budget_dict')
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):

@@ -17,6 +17,7 @@ class clientDyn(Client):
         old_grad = model_parameter_vector(old_grad)
         self.old_grad = torch.zeros_like(old_grad)
 
+        self.set_optimization()
     def train(self):
         trainloader = self.load_train_data()
         start_time = time.time()

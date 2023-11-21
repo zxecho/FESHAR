@@ -92,7 +92,7 @@ class Client(object):
         model_path = os.path.join("models", self.dataset)
         if not os.path.exists(model_path):
             os.makedirs(model_path)
-        model_path = os.path.join(model_path, self.algorithm + "_round{}_client_{}".format(current_round, self.id) + ".pt")
+        model_path = os.path.join(model_path, self.args.algorithm + "_round{}_client_{}".format(current_round, self.id) + ".pt")
         torch.save(self.model, model_path)
 
     def update_parameters(self, model, new_params):

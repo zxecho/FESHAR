@@ -25,6 +25,7 @@ class clientROD(Client):
         for x, y in trainloader:
             for yy in y:
                 self.sample_per_class[yy.item()] += 1
+        self.set_optimization()
 
     def train(self):
         trainloader = self.load_train_data()
