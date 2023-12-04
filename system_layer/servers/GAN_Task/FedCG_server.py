@@ -40,12 +40,12 @@ class FedCG(GAN_server):
         correct, total = 0, 0
         with torch.no_grad():
             for client in self.clients:
-                for x, y in client.valloader:
+                for x, y in client.load_train_data():
                     if self.args.add_noise:
                         x = add_gaussian_noise(x, mean=0., std=client.noise_std)
                     x = x.to(self.args.device)
                     y = y.to(self.args.device)
-                    feat = client.net["extractor"](x)
+                    feat = client.model["extractor"](x)
                     pred = self.global_model["classifier"](feat)
                     correct += torch.sum(torch.tensor(torch.argmax(pred, dim=1) == y, dtype=torch.float))
                     total += x.size(0)

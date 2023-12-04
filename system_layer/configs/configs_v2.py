@@ -9,12 +9,12 @@ def args_parser():
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='FER/oulu',
+    parser.add_argument('--dataset', type=str, default='mnist/non_iid4robot(n20nc10d0.1)',
                         help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
-    parser.add_argument('-algo', "--algorithm", type=str, default="FedAvg")
+    parser.add_argument('-algo', "--algorithm", type=str, default="FedCG")
     parser.add_argument('-mn', "--model_name", type=str, default="lenet5", choices=["lenet5", "resnet18", 'mine'])
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
@@ -49,6 +49,8 @@ def args_parser():
     # 系统设置
     parser.add_argument('-pv', "--prev", type=int, default=0, help="Previous Running times")
     parser.add_argument('-eg', "--eval_gap", type=int, default=1, help="Rounds gap for evaluation")
+    parser.add_argument('-sf', "--save_freq", type=int, default=1, help="Rounds gap for saving")
+
     # 额外隐私保护策略
     parser.add_argument('-dp', "--privacy", type=bool, default=False, help="differential privacy")
     parser.add_argument('-dps', "--dp_sigma", type=float, default=0.0)

@@ -29,10 +29,13 @@ class GAN_server(Server):
         self.global_model = nn.ModuleDict()
         self.global_model["generator"] = copy.deepcopy(args.G_model)
         self.global_model["discriminator"] = copy.deepcopy(args.D_model)
+        self.global_model["classifier"] = copy.deepcopy(args.C_model)
+        self.global_model["extractor"] = copy.deepcopy(args.E_model)
 
         self.global_model.to(self.device)
 
         self.latent_dim = args.latent_dim
+        self.gan_server_epochs = args.gan_server_epochs
         self.save_results_path = None
 
     def send_models(self, modules=None):

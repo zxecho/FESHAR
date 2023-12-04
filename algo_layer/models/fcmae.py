@@ -32,7 +32,7 @@ class FCMAE(nn.Module):
             norm_pix_loss=False):
         super().__init__()
 
-        # configs
+        # yaml_configs
         self.img_size = img_size
         self.depths = depths
         self.imds = dims

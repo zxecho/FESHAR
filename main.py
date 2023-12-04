@@ -1,8 +1,6 @@
-import logging
 import os
 import time
 import copy
-import yaml
 import numpy as np
 
 import torch
@@ -32,7 +30,7 @@ from algo_layer.models.vgg import VGG
 from algo_layer.models.resnet import ResNet18
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
 # 配置参数
-from system_layer.configs import args_parser
+from system_layer.configs.configs import args_parser
 # 载入全局状态监控
 from cross_layer.results_monitor import average_data, local_average_results
 from cross_layer.process_logging import save_args_config
@@ -52,7 +50,10 @@ def run(args):
 
         # 初始化模型
         if args.model_name == 'cnn':
-            args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1024).to(args.device)
+            if "mnist" in args.dataset:
+                args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1024).to(args.device)
+            elif "cifar10" in args.dataset:
+                args.model = FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600).to(args.device)
         elif args.model_name == 'mlp':
             args.model = FedAvgMLP(in_features=13, num_classes=args.num_classes, hidden_dim=128).to(args.device)
         elif args.model_name == 'simplenet':

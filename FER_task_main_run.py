@@ -30,7 +30,7 @@ from algo_layer.models.vgg import VGG
 from algo_layer.models.resnet import ResNet18
 from algo_layer.models.model_utils import LocalModel, BaseHeadSplit
 # 配置参数
-from system_layer.configs import args_parser
+from system_layer.yaml_configs import args_parser
 # 载入全局状态监控
 from cross_layer.results_monitor import average_data, local_average_results
 from cross_layer.process_logging import save_args_config
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     args = args_parser()
 
-    with open('./system_layer/configs/ex1_config.yaml', encoding='utf-8') as f:
+    with open('system_layer/yaml_configs/ex1_config.yaml', encoding='utf-8') as f:
         data_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     # general config settings

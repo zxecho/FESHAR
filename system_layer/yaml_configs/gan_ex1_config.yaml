@@ -1,13 +1,13 @@
 general_config:
   times: 1
   model_name: lenet5      # cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
-  algorithm: fed_acgan     # fed_acgan / fedacg_amp
+  algorithm: fedzl_gan     # fed_acgan / fedacg_amp / fedcg/ fedzl_gan
   global_rounds: 100
   join_ratio: 0.25
   # optimization related
   optimizer: SGD      # SGD / AdamW / Adam
-  batch_size: 32
-  local_steps: 5
+  batch_size: 16
+  local_steps: 20
   local_per_opt: False
   lr_scheduler: Exponential
 # datasets related
