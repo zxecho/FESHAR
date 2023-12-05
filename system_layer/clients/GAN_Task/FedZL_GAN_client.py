@@ -96,7 +96,7 @@ class ZLGAN_Clinet(GAN_client):
         data_length = len(trainloader)
 
         # 使用进度条代替循环, 训练本地的GAN模型
-        for step in range(self.args.gan_epoch):
+        for step in range(self.args.gan_client_epoch):
             # 将特征提取器和分类器解冻
             self.frozen_net(["discriminator", "generator"], False)
             # self.model.train()

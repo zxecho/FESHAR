@@ -14,7 +14,7 @@ def args_parser():
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
-    parser.add_argument('-algo', "--algorithm", type=str, default="FedCG")
+    parser.add_argument('-algo', "--algorithm", type=str, default="fedzl_gan")
     parser.add_argument('-mn', "--model_name", type=str, default="lenet5", choices=["lenet5", "resnet18", 'mine'])
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
