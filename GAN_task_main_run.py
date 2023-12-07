@@ -101,7 +101,7 @@ if __name__ == '__main__':
     args.times = general_params['times']
     args.algorithm = general_params['algorithm']
     args.global_rounds = general_params['global_rounds']
-    args.joint_ratio = general_params['join_ratio']
+    args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
     args.local_steps = general_params['local_steps']

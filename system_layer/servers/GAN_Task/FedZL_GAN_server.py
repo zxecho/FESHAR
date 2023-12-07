@@ -93,15 +93,16 @@ class ZLGAN_server(GAN_server):
         for _ in range(self.gan_server_epochs):
             labels = np.random.choice(self.qualified_labels, self.batch_size)
             labels = torch.LongTensor(labels).to(self.device)
-            z = self.global_model["generator"](labels)
+            z = torch.randn(self.batch_size, self.args.noise_dim, 1, 1).to(self.device)
+            gen_data = self.global_model["generator"](z, labels)
 
             logits = 0
             for w, model in zip(self.uploaded_weights, self.uploaded_models):
                 model.eval()
                 if self.localize_feature_extractor:
-                    logits += model(z) * w
+                    logits += model(gen_data) * w
                 else:
-                    logits += model['classifier'](z) * w
+                    logits += model['classifier'](gen_data) * w
 
             self.generative_optimizer.zero_grad()
             loss = self.loss(logits, labels)

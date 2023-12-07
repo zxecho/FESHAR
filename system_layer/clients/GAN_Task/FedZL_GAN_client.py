@@ -47,6 +47,9 @@ class ZLGAN_Clinet(GAN_client):
         self.auxiliary_loss = torch.nn.CrossEntropyLoss()
 
         self.sample_per_class = torch.zeros(self.num_classes)
+        for x, y in self.trainloader:
+            for yy in y:
+                self.sample_per_class[yy.item()] += 1
         self.qualified_labels = []
 
     def get_params(self, modules):
@@ -71,13 +74,12 @@ class ZLGAN_Clinet(GAN_client):
                 self.model[module].train()
 
     def train(self, current_round):
-        trainloader = self.load_train_data()
         start_time = time.time()
 
         # differential privacy
         if self.privacy:
             self.model, self.optimizer, trainloader, privacy_engine = \
-                initialize_dp(self.model, self.optimizer, trainloader, self.dp_sigma)
+                initialize_dp(self.model, self.optimizer, self.trainloader, self.dp_sigma)
 
         max_local_steps = self.local_steps
         if self.train_slow:
@@ -93,7 +95,7 @@ class ZLGAN_Clinet(GAN_client):
         print("\n Client:[%2d], Epoch:[%2d], EC_loss:%2.6f, EG_distance:%2.6f" % (
             self.id, current_round, EC_loss, EG_distance))
 
-        data_length = len(trainloader)
+        data_length = len(self.trainloader)
 
         # 使用进度条代替循环, 训练本地的GAN模型
         for step in range(self.args.gan_client_epoch):
@@ -102,7 +104,7 @@ class ZLGAN_Clinet(GAN_client):
             # self.model.train()
 
             with tqdm(range(data_length)) as tbar:
-                for i, (x, y) in enumerate(trainloader):
+                for i, (x, y) in enumerate(self.trainloader):
 
                     if self.args.add_noise:
                         x += add_gaussian_noise(x, mean=0., std=self.noise_std)
@@ -161,15 +163,16 @@ class ZLGAN_Clinet(GAN_client):
 
                     # 使用tqdm打印一下信息
                     tbar.set_description(
-                        "[Epoch {}/{}] [Batch {}/{}] [D loss: {}, acc: {}] [G loss: {}]"
-                        .format(step, self.local_steps, i, data_length, D_loss.item(), 100 * d_acc, G_loss.item())
+                        "[Local GAN Epoch {}/{}] [Batch {}/{}] [D loss: {}, acc: {}] [G loss: {}]"
+                        .format(step, self.args.gan_client_epoch, i,
+                                data_length, D_loss.item(), 100 * d_acc, G_loss.item())
                     )
                     tbar.update(1)
 
         self.frozen_net(["generator", "discriminator"], True)
 
         # training local classifier with GAN
-        self.train_local_C_with_G(current_round, max_local_steps, trainloader)
+        self.train_local_C_with_G(current_round, max_local_steps)
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
@@ -181,14 +184,14 @@ class ZLGAN_Clinet(GAN_client):
             eps, DELTA = get_dp_params(privacy_engine)
             print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")
 
-    def train_local_C_with_G(self, current_round, max_local_steps, trainloader):
+    def train_local_C_with_G(self, current_round, max_local_steps):
 
-        data_length = len(trainloader)
+        data_length = len(self.trainloader)
         self.frozen_net(["extractor", "classifier"], False)
         # local classifier training progress
         for step in range(max_local_steps):
             with tqdm(range(data_length)) as tbar:
-                for i, (x, y) in enumerate(trainloader):
+                for i, (x, y) in enumerate(self.trainloader):
                     if type(x) == type([]):
                         x[0] = x[0].to(self.device)
                     else:
@@ -221,29 +224,28 @@ class ZLGAN_Clinet(GAN_client):
                     (EC_loss + EG_distance).backward()
                     self.EC_optimizer.step()
 
-                    output = self.model(x)
-                    loss = self.loss(output, y)
-
-                    labels = np.random.choice(self.qualified_labels, self.batch_size)
-                    labels = torch.LongTensor(labels).to(self.device)
-                    z = self.model['generator'](labels)
-                    loss += self.loss(self.model['classifier'](z), labels)
-
-                    self.optimizer.zero_grad()
-                    loss.backward()
-                    self.optimizer.step()
+                    # output = self.model(x)
+                    # loss = self.loss(output, y)
+                    #
+                    # labels = np.random.choice(self.qualified_labels, self.batch_size)
+                    # labels = torch.LongTensor(labels).to(self.device)
+                    # z = self.model['generator'](labels)
+                    # loss += self.loss(self.model['classifier'](z), labels)
+                    #
+                    # self.optimizer.zero_grad()
+                    # loss.backward()
+                    # self.optimizer.step()
 
                     # 使用tqdm打印一下信息
                     tbar.set_description(
-                        "[Epoch {}/{}] [Batch {}/{}] [D loss: {}, acc: {}] [G loss: {}]"
-                        .format(step, self.local_steps, i, data_length, D_loss.item(), 100 * d_acc, G_loss.item())
+                        "[Local C Epoch {}/{}] [Batch {}/{}] [EC_loss: {}, EG_distance: {}]"
+                        .format(step, max_local_steps, i, data_length, EC_loss.item(), EG_distance.item())
                     )
                     tbar.update(1)
 
         self.frozen_net(["extractor", "classifier"], True)
 
     def train_metrics(self):
-        trainloader = self.load_train_data()
         # self.model = self.load_model('model')
         # self.model.to(self.device)
         self.model.eval()
@@ -251,7 +253,7 @@ class ZLGAN_Clinet(GAN_client):
         train_num = 0
         losses = 0
         with torch.no_grad():
-            for x, y in trainloader:
+            for x, y in self.trainloader:
                 if type(x) == type([]):
                     x[0] = x[0].to(self.device)
                 else:
