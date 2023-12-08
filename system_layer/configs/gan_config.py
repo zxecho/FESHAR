@@ -41,7 +41,7 @@ def args_parser():
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
     parser.add_argument('-glr', "--global_learning_rate", type=float, default=3e-4, help="Global learning rate")
-    parser.add_argument('-lr', "--local_learning_rate", type=float, default=3e-4, help="Local learning rate")
+    parser.add_argument('-lr', "--local_learning_rate", type=float, default=1e-3, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)

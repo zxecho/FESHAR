@@ -6,7 +6,7 @@ import random
 
 from system_layer.clients.GAN_Task.FedZL_GAN_client import ZLGAN_Clinet
 from system_layer.servers.GAN_Task.GAN_server_base import GAN_server
-from algo_layer.models.GAN_modules import Generator
+from algo_layer.models.GAN_modules import Generator, Classifier, Extractor
 
 
 class ZLGAN_server(GAN_server):
@@ -19,6 +19,8 @@ class ZLGAN_server(GAN_server):
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
 
+        self.global_model["extractor"] = Extractor(input_channels=args.image_channel)  # E
+        self.global_model["classifier"] = Classifier(n_classes=self.num_classes)  # C
         self.global_model["generator"] = Generator(n_classes=args.num_classes, latent_dim=args.noise_dim,
                                                    feature_num=self.clients[0].feature_dim)
         # ============ optimizer of server generator ==================
@@ -39,8 +41,8 @@ class ZLGAN_server(GAN_server):
             client.qualified_labels = self.qualified_labels
 
         self.localize_feature_extractor = args.localize_feature_extractor
-        if self.localize_feature_extractor:
-            self.global_model = copy.deepcopy(args.model.head)
+        # if self.localize_feature_extractor:
+        #     self.global_model['classifier'] = copy.deepcopy(args.model['classifier'])
         # self.load_model()
         self.Budget = []
 
