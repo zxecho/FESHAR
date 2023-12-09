@@ -21,8 +21,10 @@ class GAN_client(Client):
 
         self.model = nn.ModuleDict()
 
-        self.model["generator"] = copy.deepcopy(args.G_model)  # G
-        self.model["discriminator"] = copy.deepcopy(args.D_model)  # D
+        # self.model["generator"] = copy.deepcopy(args.G_model)  # G
+        # self.model["discriminator"] = copy.deepcopy(args.D_model)  # D
+        self.model["generator"] = copy.deepcopy(args.model['generator'])   # E
+        self.model["discriminator"] = copy.deepcopy(args.model['discriminator'])   # C
 
         self.latent_dim = args.latent_dim
         self.noise_dim = args.noise_dim

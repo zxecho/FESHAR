@@ -35,7 +35,7 @@ def run(args):
         # 初始化模型
         # Initialize generator and discriminator
         if args.model_name == 'acgan':
-            from algo_layer.models.GAN_models import Generator, Discriminator
+            from algo_layer.models.GAN_network import Generator, Discriminator
             args.G_model = Generator(input_channels=args.input_channels, n_classes=args.num_classes,
                                      latent_dim=args.latent_dim, img_size=args.input_size).to(args.device)
             args.D_model = Discriminator(input_channels=args.input_channels, n_classes=args.num_classes,
@@ -49,6 +49,17 @@ def run(args):
             args.D_model = Discriminator(n_classes=args.num_classes,
                                          feature_num=args.feature_num,
                                          feature_size=args.feature_size)
+        elif args.model_name == 'fedZL_GANets':
+            from algo_layer.models.GAN_models.fedZL_GANets import Generator, Discriminator, Extractor, Classifier
+            args.model = torch.nn.ModuleDict()
+            args.model['generator'] = Generator(num_classes=args.num_classes,
+                                                feature_num=args.feature_num,
+                                                noise_dim=args.noise_dim)
+            args.model['discriminator'] = Discriminator(num_classes=args.num_classes,
+                                                        feature_size=args.feature_size,
+                                                        feature_num=args.feature_num)
+            args.model['classifier'] = Classifier(num_classes=args.num_classes)
+            args.model['extractor'] = Extractor(image_channel=args.image_channel)
 
         # 选择算法
         if args.algorithm == 'fed_acgan':
@@ -100,7 +111,8 @@ if __name__ == '__main__':
     general_params = data_configs.pop('general_config')
     args.times = general_params['times']
     args.algorithm = general_params['algorithm']
-    args.global_rounds = general_params['global_rounds']
+    args.algorithm = general_params['algorithm']
+    args.model_name = general_params['model_name']
     args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']

@@ -1,9 +1,10 @@
+import copy
+
 import torch
 import numpy as np
 import time
 from tqdm import tqdm
 from system_layer.clients.GAN_Task.GAN_client_base import GAN_client
-from algo_layer.models.GAN_modules import Extractor, Classifier
 from algo_layer.privacy_protect_utils import initialize_dp, get_dp_params
 from system_layer.training_utils import AvgMeter, add_gaussian_noise
 
@@ -12,14 +13,15 @@ from system_layer.training_utils import AvgMeter, add_gaussian_noise
 class ZLGAN_Clinet(GAN_client):
 
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
-        super().__init__(args, id, train_samples, test_samples, **kwargs)
+        super(ZLGAN_Clinet, self).__init__(args, id, train_samples, test_samples, **kwargs)
 
         ##############################################################
         # frozen all models' parameters, unfrozen when need to train #
         ##############################################################
-        self.model["extractor"] = Extractor(input_channels=args.image_channel)  # E
-        self.model["classifier"] = Classifier(n_classes=self.num_classes)  # C
-
+        self.model["extractor"] = copy.deepcopy(args.model['extractor'])   # E
+        self.model["classifier"] = copy.deepcopy(args.model['classifier'])   # C
+        # self.model["generator"] = copy.deepcopy(args.model['generator'])   # E
+        # self.model["discriminator"] = copy.deepcopy(args.model['discriminator'])   # C
         self.model.to(self.device)
 
         self.trainloader = self.load_train_data()

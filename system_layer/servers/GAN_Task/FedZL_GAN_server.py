@@ -19,10 +19,12 @@ class ZLGAN_server(GAN_server):
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
 
-        self.global_model["extractor"] = Extractor(input_channels=args.image_channel)  # E
-        self.global_model["classifier"] = Classifier(n_classes=self.num_classes)  # C
-        self.global_model["generator"] = Generator(n_classes=args.num_classes, latent_dim=args.noise_dim,
-                                                   feature_num=self.clients[0].feature_dim)
+        # self.global_model["extractor"] = Extractor(input_channels=args.image_channel)  # E
+        # self.global_model["classifier"] = Classifier(n_classes=self.num_classes)  # C
+        # self.global_model["generator"] = Generator(n_classes=args.num_classes, latent_dim=args.noise_dim,
+        #                                            feature_num=self.clients[0].feature_dim)
+        self.global_model = copy.deepcopy(args.model)
+        self.global_model.to(self.device)
         # ============ optimizer of server generator ==================
         self.generative_optimizer = torch.optim.Adam(
             params=self.global_model['generator'].parameters(),

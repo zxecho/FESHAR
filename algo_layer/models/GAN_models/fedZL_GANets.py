@@ -45,15 +45,15 @@ class Extractor(nn.Module):
 
 class Classifier(nn.Module):
 
-    def __init__(self, class_num=10):
+    def __init__(self, num_classes=10):
         super(Classifier, self).__init__()
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(16 * 5 * 5, 120),
-            nn.Sigmoid(),
+            nn.Linear(1024, 120),
+            nn.ReLU(),
             nn.Linear(120, 84),
-            nn.Sigmoid(),
-            nn.Linear(84, class_num),
+            nn.ReLU(),
+            nn.Linear(84, num_classes),
         )
 
     def forward(self, x):
@@ -67,15 +67,15 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         self.embedding = nn.Embedding(num_classes, num_classes)
         self.generator = nn.Sequential(
-            nn.ConvTranspose2d(noise_dim + num_classes, 512, 2, 1, 0, bias=False),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.ConvTranspose2d(512, 256, 2, 1, 0, bias=False),
+            nn.ConvTranspose2d(noise_dim + num_classes, 256, 2, 1, 0, bias=False),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d(256, 128, 2, 1, 0, bias=False),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
+            # nn.ConvTranspose2d(256, 128, 2, 1, 0, bias=False),
+            # nn.BatchNorm2d(128),
+            # nn.LeakyReLU(0.2, inplace=True),
             nn.ConvTranspose2d(128, feature_num * 1, 2, 1, 0, bias=False),
             nn.Sigmoid(),
         )
@@ -89,10 +89,9 @@ class Generator(nn.Module):
 
 class Discriminator(nn.Module):
 
-    def __init__(self, num_classes, feature_num, feature_size):
+    def __init__(self, num_classes, feature_size, feature_num):
         super(Discriminator, self).__init__()
         self.num_classes = num_classes
-        self.feature_num = feature_num
         self.feature_size = feature_size
         self.embedding = nn.Embedding(num_classes, num_classes)
         self.discriminator = nn.Sequential(
@@ -102,10 +101,10 @@ class Discriminator(nn.Module):
             spectral_norm(nn.Conv2d(128, 256, 2, 1, 0, bias=False)),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
-            spectral_norm(nn.Conv2d(256, 512, 2, 1, 0, bias=False)),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, inplace=True),
-            spectral_norm(nn.Conv2d(512, 1, 2, 1, 0, bias=False)),
+            # spectral_norm(nn.Conv2d(256, 512, 2, 1, 0, bias=False)),
+            # nn.BatchNorm2d(512),
+            # nn.LeakyReLU(0.2, inplace=True),
+            spectral_norm(nn.Conv2d(256, 1, 2, 1, 0, bias=False)),
             nn.Sigmoid(),
         )
         self.apply(weights_init)

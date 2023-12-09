@@ -167,6 +167,12 @@ def setup_network_input(args):
         # extractor ouput size [128*28*28]
         args.feature_num = 128
         args.feature_size = 28
+    if args.model_name == "fedZL_GANets":
+        # extractor input size [3*32*32]
+        args.image_size = 28
+        # extractor ouput size [16*5*5]
+        args.feature_num = 64
+        args.feature_size = 4
 
 
 def setup_result_saving_path(args):
