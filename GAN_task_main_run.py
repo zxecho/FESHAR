@@ -45,21 +45,26 @@ def run(args):
             from algo_layer.models.GAN_modules import Conditional_D as Discriminator
             args.G_model = Generator(n_classes=args.num_classes,
                                      latent_dim=args.noise_dim,
-                                     feature_num=args.feature_num)
+                                     feature_num=args.feature_dim)
             args.D_model = Discriminator(n_classes=args.num_classes,
-                                         feature_num=args.feature_num,
+                                         feature_num=args.feature_dim,
                                          feature_size=args.feature_size)
         elif args.model_name == 'fedZL_GANets':
-            from algo_layer.models.GAN_models.fedZL_GANets import Generator, Discriminator, Extractor, Classifier
+            from algo_layer.models.GAN_models.fedZL_GANets import (Generator, Discriminator,
+                                                                   Extractor, Classifier, Generative_model)
             args.model = torch.nn.ModuleDict()
-            args.model['generator'] = Generator(num_classes=args.num_classes,
-                                                feature_num=args.feature_num,
-                                                noise_dim=args.noise_dim)
+            # args.model['generator'] = Generator(num_classes=args.num_classes,
+            #                                     feature_num=args.feature_dim,
+            #                                     noise_dim=args.noise_dim)
+            args.model['generator'] = Generative_model(noise_dim=args.noise_dim, num_classes=args.num_classes,
+                                                       hidden_dim=args.hidden_dim, feature_dim=args.feature_dim,
+                                                       device=args.device)
             args.model['discriminator'] = Discriminator(num_classes=args.num_classes,
                                                         feature_size=args.feature_size,
-                                                        feature_num=args.feature_num)
+                                                        feature_num=args.feature_dim)
             args.model['classifier'] = Classifier(num_classes=args.num_classes)
-            args.model['extractor'] = Extractor(image_channel=args.image_channel)
+            args.model['extractor'] = Extractor(image_channel=args.image_channel, feature_in_dim=1024,
+                                                feature_out_dim=args.feature_dim)
 
         # 选择算法
         if args.algorithm == 'fed_acgan':

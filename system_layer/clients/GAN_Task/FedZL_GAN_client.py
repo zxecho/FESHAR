@@ -214,7 +214,8 @@ class ZLGAN_Clinet(GAN_client):
                     EC = self.model["classifier"](E)
                     EC_loss = self.CE_criterion(EC, y)
 
-                    G = self.model["generator"](z, y).detach()
+                    # G = self.model["generator"](z, y).detach()
+                    G = self.model["generator"](y).detach()
 
                     gc_loss = 0
                     if self.args.distance == "mse":
@@ -223,7 +224,7 @@ class ZLGAN_Clinet(GAN_client):
                         EG_distance = 1 - self.COS_criterion(E, G).mean()
                     elif self.args.distance == "none":
                         EG_distance =  0
-                        gc_loss = self.loss(self.model['classifier'](z), y)
+                        gc_loss = self.loss(self.model['classifier'](G), y)
                     p = min(current_round / 50, 1.)
                     gamma = 2 / (1 + np.exp(-10 * p)) - 1
                     EG_distance = gamma * EG_distance
@@ -245,8 +246,9 @@ class ZLGAN_Clinet(GAN_client):
 
                     # 使用tqdm打印一下信息
                     tbar.set_description(
-                        "[Local C Epoch {}/{}] [Batch {}/{}] [EC_loss: {}, EG_distance: {}]"
-                        .format(step, max_local_steps, i, data_length, EC_loss.item(), EG_distance.item())
+                        "[Local C Epoch {}/{}] [Batch {}/{}] [EC_loss: {}, EG_distance: {}, gc_loss: {}]"
+                        .format(step, max_local_steps, i, data_length, EC_loss.item(),
+                                EG_distance.item(), gc_loss.item())
                     )
                     tbar.update(1)
 

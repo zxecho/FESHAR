@@ -2,7 +2,7 @@ import time
 import numpy as np
 import torch
 import copy
-import random
+from tqdm import tqdm
 
 from system_layer.clients.GAN_Task.FedZL_GAN_client import ZLGAN_Clinet
 from system_layer.servers.GAN_Task.GAN_server_base import GAN_server
@@ -52,7 +52,7 @@ class ZLGAN_server(GAN_server):
         for i in range(self.global_rounds + 1):
             s_t = time.time()
             self.selected_clients = self.select_clients()
-            self.send_models(['generator'])
+            self.send_models(['classifier', 'generator'])
 
             if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
@@ -94,11 +94,12 @@ class ZLGAN_server(GAN_server):
     def train_generator(self):
         self.global_model['generator'].train()
 
-        for _ in range(self.gan_server_epochs):
+        for _ in tqdm(range(self.gan_server_epochs)):
             labels = np.random.choice(self.qualified_labels, self.batch_size)
             labels = torch.LongTensor(labels).to(self.device)
             z = torch.randn(self.batch_size, self.args.noise_dim, 1, 1).to(self.device)
-            gen_data = self.global_model["generator"](z, labels)
+            # gen_data = self.global_model["generator"](z, labels)
+            gen_data = self.global_model["generator"](labels)
 
             logits = 0
             for w, model in zip(self.uploaded_weights, self.uploaded_models):

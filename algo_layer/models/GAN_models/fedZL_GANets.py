@@ -8,7 +8,7 @@ from algo_layer.models.model_utils import weights_init
 
 class Extractor(nn.Module):
 
-    def __init__(self, image_channel):
+    def __init__(self, image_channel, feature_in_dim, feature_out_dim):
         super(Extractor, self).__init__()
         # self.extractor = nn.Sequential(
         #     nn.Conv2d(image_channel, 6, 5),
@@ -38,8 +38,15 @@ class Extractor(nn.Module):
             nn.MaxPool2d(kernel_size=(2, 2))
         )
 
+        self.fc1 = nn.Sequential(
+            nn.Linear(feature_in_dim, feature_out_dim),
+            nn.ReLU(inplace=True)
+        )
+
     def forward(self, x):
         x = self.extractor(x)
+        x = torch.flatten(x, 1)
+        x = self.fc1(x)
         return x
 
 
@@ -48,12 +55,11 @@ class Classifier(nn.Module):
     def __init__(self, num_classes=10):
         super(Classifier, self).__init__()
         self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(1024, 120),
+            nn.Linear(512, 128),
             nn.ReLU(),
-            nn.Linear(120, 84),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(84, num_classes),
+            nn.Linear(64, num_classes),
         )
 
     def forward(self, x):
@@ -86,6 +92,33 @@ class Generator(nn.Module):
         zy = torch.cat([z, y], 1)
         return self.generator(zy)
 
+class Generative_model(nn.Module):
+    def __init__(self, noise_dim, num_classes, hidden_dim, feature_dim, device) -> None:
+        super().__init__()
+
+        self.noise_dim = noise_dim
+        self.num_classes = num_classes
+        self.device = device
+
+        self.fc1 = nn.Sequential(
+            nn.Linear(noise_dim + num_classes, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU()
+        )
+
+        self.fc = nn.Linear(hidden_dim, feature_dim)
+
+    def forward(self, labels):
+        batch_size = labels.shape[0]
+        eps = torch.rand((batch_size, self.noise_dim), device=self.device) # sampling from Gaussian
+
+        y_input = torch.nn.functional.one_hot(labels, self.num_classes).to(self.device)
+        z = torch.cat((eps, y_input), dim=1)
+
+        z = self.fc1(z)
+        z = self.fc(z)
+
+        return z
 
 class Discriminator(nn.Module):
 

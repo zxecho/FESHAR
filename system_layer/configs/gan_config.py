@@ -41,7 +41,7 @@ def args_parser():
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
     parser.add_argument('-glr', "--global_learning_rate", type=float, default=3e-4, help="Global learning rate")
-    parser.add_argument('-lr', "--local_learning_rate", type=float, default=1e-3, help="Local learning rate")
+    parser.add_argument('-lr', "--local_learning_rate", type=float, default=3e-4, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
@@ -96,7 +96,7 @@ def args_parser():
     parser.add_argument('--D_model', type=object, default=None, help="Fed D model")
     parser.add_argument('--C_model', type=object, default=None, help="Fed C model")
     parser.add_argument('--E_model', type=object, default=None, help="Fed Extractor model")
-    parser.add_argument('--gan_server_epochs', type=int, default=100,
+    parser.add_argument('--gan_server_epochs', type=int, default=200,
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
@@ -107,7 +107,8 @@ def args_parser():
     # for network input settings
     parser.add_argument('--image_channel', type=int, default=1, help="channel for images")
     parser.add_argument('--image_size', type=int, default=32, help='size for images')
-    parser.add_argument('--feature_num', type=int, default=32, help='feature num for network model')
+    parser.add_argument('--feature_dim', type=int, default=32, help='feature num for network model')
+    parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim for network model')
     parser.add_argument('--feature_size', type=int, default=32, help='feature size for network model')
     parser.add_argument('--input_size', type=tuple, default=(32, 32), help="Input data size")
     parser.add_argument('--input_channels', type=int, default=1, help="Input image channels")
@@ -155,25 +156,25 @@ def setup_network_input(args):
         # extractor input size [3*32*32]
         args.image_size = 32
         # extractor ouput size [16*5*5]
-        args.feature_num = 16
+        args.feature_dim = 16
         args.feature_size = 4
     elif args.model_name == "alexnet":
         # extractor input size [3*224*224]
         args.image_size = 224
         # extractor ouput size [192*13*13]
-        args.feature_num = 192
+        args.feature_dim = 192
         args.feature_size = 13
     elif args.model_name == "resnet18":
         # extractor input size [3*224*224]
         args.image_size = 224
         # extractor ouput size [128*28*28]
-        args.feature_num = 128
+        args.feature_dim = 128
         args.feature_size = 28
     if args.model_name == "fedZL_GANets":
         # extractor input size [3*32*32]
         args.image_size = 28
         # extractor ouput size [16*5*5]
-        args.feature_num = 64
+        args.feature_dim = 512
         args.feature_size = 4
 
 
