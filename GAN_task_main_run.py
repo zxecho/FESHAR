@@ -117,6 +117,7 @@ if __name__ == '__main__':
     args.optimizer = general_params['optimizer']
     args.batch_size = general_params['batch_size']
     args.local_steps = general_params['local_steps']
+    args.train_local_gan = general_params['train_local_gan']
     # if general_params['local_per_opt']:
     #     args.local_per_opt = general_params['local_per_opt']
     #     per_local_setttings = data_configs.pop('local_per_settings')

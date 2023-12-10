@@ -102,6 +102,8 @@ def args_parser():
                         help="the epochs for clients' local gan training (default: 20)")
     parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.005)
     parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
+    parser.add_argument('-tlg', "--train_local_gan", type=bool, default=False)
+
     # for network input settings
     parser.add_argument('--image_channel', type=int, default=1, help="channel for images")
     parser.add_argument('--image_size', type=int, default=32, help='size for images')
@@ -141,7 +143,7 @@ def args_parser():
                         help="std for gaussian noise added to image(default: 1.)")
     parser.add_argument('--add_noise', dest='add_noise', action='store_true', default=False,
                         help="whether adding noise to image")
-    parser.add_argument('--distance', type=str, default="mse", choices=["none", "mse", "cos"])
+    parser.add_argument('--distance', type=str, default="none", choices=["none", "mse", "cos"])
 
     args = parser.parse_args()
 

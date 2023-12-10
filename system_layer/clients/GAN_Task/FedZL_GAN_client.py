@@ -94,12 +94,30 @@ class ZLGAN_Clinet(GAN_client):
         EC_loss = EC_loss_meter.get()
         EG_distance = EG_distance_meter.get()
         # EC_acc = self.local_test()
-        print("\n Client:[%2d], Epoch:[%2d], EC_loss:%2.6f, EG_distance:%2.6f" % (
-            self.id, current_round, EC_loss, EG_distance))
+        print("\n >>>>>>>>>>>> Client:[%2d] Start local training!<<<<<<<<<<<<<<<" % self.id)
 
         data_length = len(self.trainloader)
 
         # 使用进度条代替循环, 训练本地的GAN模型
+        if self.args.train_local_gan:
+            self.train_local_gan()
+        self.frozen_net(["generator", "discriminator"], True)
+
+        # training local classifier with GAN
+        self.train_local_C_with_G(current_round, max_local_steps)
+
+        self.train_time_cost['num_rounds'] += 1
+        self.train_time_cost['total_cost'] += time.time() - start_time
+
+        # if self.privacy:
+        #     res, DELTA = get_dp_params(self.optimizer)
+        #     print(f"Client {self.id}", f"(ε = {res[0]:.2f}, δ = {DELTA}) for α = {res[1]}")
+        if self.privacy:
+            eps, DELTA = get_dp_params(privacy_engine)
+            print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")
+
+    def train_local_gan(self):
+        data_length = len(self.trainloader)
         for step in range(self.args.gan_client_epoch):
             # 将特征提取器和分类器解冻
             self.frozen_net(["discriminator", "generator"], False)
@@ -171,21 +189,6 @@ class ZLGAN_Clinet(GAN_client):
                     )
                     tbar.update(1)
 
-        self.frozen_net(["generator", "discriminator"], True)
-
-        # training local classifier with GAN
-        self.train_local_C_with_G(current_round, max_local_steps)
-
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
-        # if self.privacy:
-        #     res, DELTA = get_dp_params(self.optimizer)
-        #     print(f"Client {self.id}", f"(ε = {res[0]:.2f}, δ = {DELTA}) for α = {res[1]}")
-        if self.privacy:
-            eps, DELTA = get_dp_params(privacy_engine)
-            print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")
-
     def train_local_C_with_G(self, current_round, max_local_steps):
 
         data_length = len(self.trainloader)
@@ -213,17 +216,19 @@ class ZLGAN_Clinet(GAN_client):
 
                     G = self.model["generator"](z, y).detach()
 
+                    gc_loss = 0
                     if self.args.distance == "mse":
                         EG_distance = self.MSE_criterion(E, G)
                     elif self.args.distance == "cos":
                         EG_distance = 1 - self.COS_criterion(E, G).mean()
                     elif self.args.distance == "none":
-                        EG_distance = 0
+                        EG_distance =  0
+                        gc_loss = self.loss(self.model['classifier'](z), y)
                     p = min(current_round / 50, 1.)
                     gamma = 2 / (1 + np.exp(-10 * p)) - 1
                     EG_distance = gamma * EG_distance
 
-                    (EC_loss + EG_distance).backward()
+                    (EC_loss + EG_distance + gc_loss).backward()
                     self.EC_optimizer.step()
 
                     # output = self.model(x)

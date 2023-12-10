@@ -10,6 +10,7 @@ general_config:
   local_steps: 1
   local_per_opt: False
   lr_scheduler: Exponential
+  train_local_gan: False
 # datasets related
 #cifar10:
 #  dataset: cifar10/
