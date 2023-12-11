@@ -254,6 +254,15 @@ class ZLGAN_Clinet(GAN_client):
 
         self.frozen_net(["extractor", "classifier"], True)
 
+    def set_parameters(self, model):
+
+        for new_param, old_param in zip(model['classifier'].parameters(), self.model['classifier'].parameters()):
+            old_param.data = new_param.data.clone()
+        if not self.args.localize_feature_extractor:
+            for new_param, old_param in zip(model['extractor'].parameters(), self.model['extractor'].parameters()):
+                old_param.data = new_param.data.clone()
+
+        self.model['generator'] = model['generator']
     def train_metrics(self):
         # self.model = self.load_model('model')
         # self.model.to(self.device)
@@ -271,6 +280,12 @@ class ZLGAN_Clinet(GAN_client):
                 feat = self.model["extractor"](x)
                 output = self.model["classifier"](feat)
                 loss = self.loss(output, y)
+
+                labels = np.random.choice(self.qualified_labels, self.batch_size)
+                labels = torch.LongTensor(labels).to(self.device)
+                z = self.model["generator"](labels)
+                loss += self.loss(self.model['classifier'](z), labels)
+
                 train_num += y.shape[0]
                 losses += loss.item() * y.shape[0]
 
@@ -279,20 +294,20 @@ class ZLGAN_Clinet(GAN_client):
 
         return losses, train_num
 
-    def test_metrics(self):
-        testloader = self.load_test_data()
-        correct, total = 0, 0
-
-        self.model.eval()
-
-        with torch.no_grad():
-            for batch, (x, y) in enumerate(testloader):
-                if self.args.add_noise:
-                    x += add_gaussian_noise(x, mean=0., std=self.noise_std)
-                x = x.to(self.device)
-                y = y.to(self.device)
-                feat = self.model["extractor"](x)
-                pred = self.model["classifier"](feat)
-                correct += torch.sum((torch.argmax(pred, dim=1) == y).float())
-                total += x.size(0)
-        return correct.item(), total, 0
+    # def test_metrics(self):
+    #     testloader = self.load_test_data()
+    #     correct, total = 0, 0
+    #
+    #     self.model.eval()
+    #
+    #     with torch.no_grad():
+    #         for batch, (x, y) in enumerate(testloader):
+    #             if self.args.add_noise:
+    #                 x += add_gaussian_noise(x, mean=0., std=self.noise_std)
+    #             x = x.to(self.device)
+    #             y = y.to(self.device)
+    #             feat = self.model["extractor"](x)
+    #             pred = self.model["classifier"](feat)
+    #             correct += torch.sum((torch.argmax(pred, dim=1) == y).float())
+    #             total += x.size(0)
+    #     return correct.item(), total, 0
