@@ -40,6 +40,10 @@ class ZLGAN_Clinet(GAN_client):
 
         self.EC_optimizer = torch.optim.Adam(self.get_params(["extractor", "classifier"]), lr=args.local_learning_rate,
                                        weight_decay=args.weight_decay)
+
+        self.optimizer = torch.optim.Adam(self.get_params(["extractor", "classifier"]), lr=args.local_learning_rate,
+                                       weight_decay=args.weight_decay)
+
         self.BCE_criterion = torch.nn.BCELoss().to(self.device)
         self.CE_criterion = torch.nn.CrossEntropyLoss().to(self.device)
         self.MSE_criterion = torch.nn.MSELoss().to(self.device)
@@ -104,7 +108,8 @@ class ZLGAN_Clinet(GAN_client):
         self.frozen_net(["generator", "discriminator"], True)
 
         # training local classifier with GAN
-        self.train_local_C_with_G(current_round, max_local_steps)
+        # self.train_local_C_with_G(current_round, max_local_steps)
+        self.train_local_C()
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
@@ -254,15 +259,45 @@ class ZLGAN_Clinet(GAN_client):
 
         self.frozen_net(["extractor", "classifier"], True)
 
-    def set_parameters(self, model):
+    def train_local_C(self):
+        self.model.train()
 
-        for new_param, old_param in zip(model['classifier'].parameters(), self.model['classifier'].parameters()):
-            old_param.data = new_param.data.clone()
-        if not self.args.localize_feature_extractor:
-            for new_param, old_param in zip(model['extractor'].parameters(), self.model['extractor'].parameters()):
-                old_param.data = new_param.data.clone()
+        start_time = time.time()
 
-        self.model['generator'] = model['generator']
+        max_local_epochs = self.local_steps
+        if self.train_slow:
+            max_local_epochs = np.random.randint(1, max_local_epochs // 2)
+
+        for step in tqdm(range(max_local_epochs)):
+            for i, (x, y) in enumerate(self.trainloader):
+                if type(x) == type([]):
+                    x[0] = x[0].to(self.device)
+                else:
+                    x = x.to(self.device)
+                y = y.to(self.device)
+                if self.train_slow:
+                    time.sleep(0.1 * np.abs(np.random.rand()))
+                feat = self.model['extractor'](x)
+                output = self.model['classifier'](feat)
+                loss = self.loss(output, y)
+
+                labels = np.random.choice(self.qualified_labels, self.batch_size)
+                labels = torch.LongTensor(labels).to(self.device)
+                z = self.model['generator'](labels)
+                loss += self.loss(self.model['classifier'](z), labels)
+
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+        # self.model.cpu()
+        self.model.eval()
+
+        if self.learning_rate_decay:
+            self.learning_rate_scheduler.step()
+
+        self.train_time_cost['num_rounds'] += 1
+        self.train_time_cost['total_cost'] += time.time() - start_time
     def train_metrics(self):
         # self.model = self.load_model('model')
         # self.model.to(self.device)

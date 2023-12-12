@@ -52,7 +52,7 @@ class ZLGAN_server(GAN_server):
         for i in range(self.global_rounds + 1):
             s_t = time.time()
             self.selected_clients = self.select_clients()
-            self.send_models(['classifier', 'generator'])
+            self.send_models(['extractor', 'generator'])
 
             if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
@@ -73,7 +73,7 @@ class ZLGAN_server(GAN_server):
                 self.call_dlg(i)
 
             self.train_generator()
-            self.aggregate_parameters(['classifier'])
+            self.aggregate_parameters(['extractor'])
 
             self.Budget.append(time.time() - s_t)
             print('-' * 25, 'time cost', '-' * 25, self.Budget[-1])

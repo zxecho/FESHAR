@@ -41,7 +41,7 @@ def args_parser():
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
     parser.add_argument('-glr', "--global_learning_rate", type=float, default=3e-4, help="Global learning rate")
-    parser.add_argument('-lr', "--local_learning_rate", type=float, default=3e-4, help="Local learning rate")
+    parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.001, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
@@ -100,7 +100,7 @@ def args_parser():
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
-    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.005)
+    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.001)
     parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
     parser.add_argument('-tlg', "--train_local_gan", type=bool, default=False)
 

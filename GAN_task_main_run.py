@@ -116,7 +116,7 @@ if __name__ == '__main__':
     general_params = data_configs.pop('general_config')
     args.times = general_params['times']
     args.algorithm = general_params['algorithm']
-    args.algorithm = general_params['algorithm']
+    args.global_rounds = general_params['global_rounds']
     args.model_name = general_params['model_name']
     args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
