@@ -41,7 +41,7 @@ class ZLGAN_Clinet(GAN_client):
         self.EC_optimizer = torch.optim.Adam(self.get_params(["extractor", "classifier"]), lr=args.local_learning_rate,
                                        weight_decay=args.weight_decay)
 
-        self.optimizer = torch.optim.Adam(self.get_params(["extractor", "classifier"]), lr=args.local_learning_rate,
+        self.optimizer = torch.optim.AdamW(self.get_params(["classifier", "extractor"]), lr=args.local_learning_rate,
                                        weight_decay=args.weight_decay)
 
         self.BCE_criterion = torch.nn.BCELoss().to(self.device)
@@ -103,13 +103,13 @@ class ZLGAN_Clinet(GAN_client):
         data_length = len(self.trainloader)
 
         # 使用进度条代替循环, 训练本地的GAN模型
-        if self.args.train_local_gan:
-            self.train_local_gan()
+        self.train_local_gan()
         self.frozen_net(["generator", "discriminator"], True)
 
         # training local classifier with GAN
         # self.train_local_C_with_G(current_round, max_local_steps)
-        self.train_local_C()
+        # self.train_local_C()
+        # self.train_local_pC()
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
@@ -298,6 +298,7 @@ class ZLGAN_Clinet(GAN_client):
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
+
     def train_metrics(self):
         # self.model = self.load_model('model')
         # self.model.to(self.device)

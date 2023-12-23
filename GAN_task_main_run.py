@@ -9,6 +9,7 @@ import torch
 # facial expression recognition experiments
 from system_layer.servers.GAN_Task.FedCG_server import FedCG
 from system_layer.servers.GAN_Task.FedZL_GAN_server import ZLGAN_server
+from system_layer.servers.GAN_Task.pFedG_server import pFedG_server
 from system_layer.servers.GAN_Task.FedACG_amp_server import FedACGAN_amp
 from system_layer.servers.GAN_Task.FedACGAN_server import FedACGAN
 from system_layer.servers.server_local import Local
@@ -49,7 +50,7 @@ def run(args):
             args.D_model = Discriminator(n_classes=args.num_classes,
                                          feature_num=args.feature_dim,
                                          feature_size=args.feature_size)
-        elif args.model_name == 'fedZL_GANets':
+        elif args.model_name == 'pFedG':
             from algo_layer.models.GAN_models.fedZL_GANets import (Generator, Discriminator,
                                                                    Extractor, Classifier, Generative_model)
             args.model = torch.nn.ModuleDict()
@@ -77,6 +78,8 @@ def run(args):
             server = FedACGAN_amp(args, i)
         elif args.algorithm == 'fedzl_gan':
             server = ZLGAN_server(args, i)
+        elif args.algorithm == 'pfedg':
+            server = pFedG_server(args, i)
         else:
             raise NotImplementedError
 
@@ -138,7 +141,7 @@ if __name__ == '__main__':
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_{}_test_exp1'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_{}_test_per_exp1'.format(args.model_name, args.algorithm, param)
 
         # initial network input
         setup_network_input(args)

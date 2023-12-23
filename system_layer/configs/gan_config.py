@@ -14,7 +14,7 @@ def args_parser():
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
     parser.add_argument('--goal', type=str, default="test", help="exps goal")
-    parser.add_argument('-algo', "--algorithm", type=str, default="fedzl_gan")
+    parser.add_argument('-algo', "--algorithm", type=str, default="pfedg")
     parser.add_argument('-mn', "--model_name", type=str, default="lenet5", choices=["lenet5", "resnet18", 'mine'])
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
     parser.add_argument('-head', "--head", type=str, default="cnn")
@@ -41,7 +41,7 @@ def args_parser():
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
     parser.add_argument('-glr', "--global_learning_rate", type=float, default=3e-4, help="Global learning rate")
-    parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.001, help="Local learning rate")
+    parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.0005, help="Local learning rate")
     parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
@@ -88,7 +88,8 @@ def args_parser():
                         help="Number of personalized training steps for pFedMe")
     parser.add_argument('-lrp', "--p_learning_rate", type=float, default=0.01,
                         help="personalized learning rate to caculate theta aproximately using K steps")
-
+    # Ditto / FedRep
+    parser.add_argument('-pls', "--plocal_epochs", type=int, default=1)
     # 专门用于联邦的生成网络
     parser.add_argument('--global_iter_per_epoch', type=int, default=100,
                         help="the number of iteration per epoch for server training (default: 100)")
@@ -100,7 +101,7 @@ def args_parser():
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
-    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.001)
+    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.0005)
     parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
     parser.add_argument('-tlg', "--train_local_gan", type=bool, default=False)
 
@@ -176,6 +177,13 @@ def setup_network_input(args):
         # extractor ouput size [16*5*5]
         args.feature_dim = 512
         args.feature_size = 4
+    if args.model_name == "pFedG":
+        # extractor input size [3*32*32]
+        args.image_size = 28
+        # extractor ouput size [16*5*5]
+        args.feature_dim = 512
+        args.feature_size = 4
+
 
 
 def setup_result_saving_path(args):
