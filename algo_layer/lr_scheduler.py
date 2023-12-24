@@ -9,7 +9,7 @@ def get_lr_scheduler(lr_scheduler_name='Exponential', opt=None, **kwargs):
     lr_scheduler = None
 
     if lr_scheduler_lower == 'exponential':
-        torch.optim.lr_scheduler.ExponentialLR(
+        lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(
             optimizer=opt,
             **kwargs,
         )

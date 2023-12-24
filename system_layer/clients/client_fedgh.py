@@ -1,33 +1,26 @@
-import copy
 import torch
-import torch.nn as nn
 import numpy as np
 import time
 from system_layer.clients.client_base import Client
+from collections import defaultdict
 
 
-class clientBABU(Client):
+class clientGH(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
 
-        self.fine_tuning_steps = args.fine_tuning_steps
-
-        for param in self.model.head.parameters():
-            param.requires_grad = False
-
     def train(self):
         trainloader = self.load_train_data()
-
-        start_time = time.time()
-
         # self.model.to(self.device)
         self.model.train()
 
-        max_local_steps = self.local_steps
-        if self.train_slow:
-            max_local_steps = np.random.randint(1, max_local_steps // 2)
+        start_time = time.time()
 
-        for step in range(max_local_steps):
+        max_local_epochs = self.local_steps
+        if self.train_slow:
+            max_local_epochs = np.random.randint(1, max_local_epochs // 2)
+
+        for epoch in range(max_local_epochs):
             for i, (x, y) in enumerate(trainloader):
                 if type(x) == type([]):
                     x[0] = x[0].to(self.device)
@@ -36,9 +29,9 @@ class clientBABU(Client):
                 y = y.to(self.device)
                 if self.train_slow:
                     time.sleep(0.1 * np.abs(np.random.rand()))
-                self.optimizer.zero_grad()
                 output = self.model(x)
                 loss = self.loss(output, y)
+                self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
 
@@ -50,36 +43,46 @@ class clientBABU(Client):
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
 
-    def set_parameters(self, base):
-        for new_param, old_param in zip(base.parameters(), self.model.base.parameters()):
+    def set_parameters(self, head):
+        for new_param, old_param in zip(head.parameters(), self.model.head.parameters()):
             old_param.data = new_param.data.clone()
 
-    def fine_tune(self, which_module=['base', 'head']):
+    def collect_protos(self):
         trainloader = self.load_train_data()
+        self.model.eval()
 
-        start_time = time.time()
-
-        self.model.train()
-
-        if 'head' in which_module:
-            for param in self.model.head.parameters():
-                param.requires_grad = True
-
-        if 'base' not in which_module:
-            for param in self.model.head.parameters():
-                param.requires_grad = False
-
-        for step in range(self.fine_tuning_steps):
+        protos = defaultdict(list)
+        with torch.no_grad():
             for i, (x, y) in enumerate(trainloader):
                 if type(x) == type([]):
                     x[0] = x[0].to(self.device)
                 else:
                     x = x.to(self.device)
                 y = y.to(self.device)
-                output = self.model(x)
-                loss = self.loss(output, y)
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+                if self.train_slow:
+                    time.sleep(0.1 * np.abs(np.random.rand()))
+                rep = self.model.base(x)
 
-        self.train_time_cost['total_cost'] += time.time() - start_time
+                for i, yy in enumerate(y):
+                    y_c = yy.item()
+                    protos[y_c].append(rep[i, :].detach().data)
+
+        self.protos = agg_func(protos)
+
+
+# https://github.com/yuetan031/fedproto/blob/main/lib/utils.py#L205
+def agg_func(protos):
+    """
+    Returns the average of the weights.
+    """
+
+    for [label, proto_list] in protos.items():
+        if len(proto_list) > 1:
+            proto = 0 * proto_list[0].data
+            for i in proto_list:
+                proto += i.data
+            protos[label] = proto / len(proto_list)
+        else:
+            protos[label] = proto_list[0]
+
+    return protos
