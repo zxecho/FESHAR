@@ -10,10 +10,10 @@ from exps.dataset_utils import check, separate_data_v2, split_data, save_file
 random.seed(1)
 np.random.seed(1)
 
-
 # Allocate data to users
-def generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition):
+def generate_cifar100(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition):
     dir_path = raw_data_path + dataset_name + "/"
+
     # Setup directory for train/test data
     config_path = dir_path + "config.json"
     train_path = dir_path + "train/"
@@ -22,12 +22,13 @@ def generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid,
     if check(config_path, train_path, test_path, num_clients, num_classes, niid, balance, partition):
         return
 
-    # Get FashionMNIST data
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.5], [0.5])])
+    # Get Cifar100 data
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    trainset = torchvision.datasets.FashionMNIST(
+    trainset = torchvision.datasets.CIFAR100(
         root=raw_data_path + "rawdata", train=True, download=True, transform=transform)
-    testset = torchvision.datasets.FashionMNIST(
+    testset = torchvision.datasets.CIFAR100(
         root=raw_data_path + "rawdata", train=False, download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=len(trainset.data), shuffle=False)
@@ -55,21 +56,21 @@ def generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid,
     #     dataset.append(dataset_image[idx])
 
     X, y, statistic = separate_data_v2((dataset_image, dataset_label), num_clients, num_classes,
-                                    niid, balance, partition, class_per_client=2)
+                                    niid, balance, partition, class_per_client=10)
     train_data, test_data = split_data(X, y)
     save_file(config_path, train_path, test_path, train_data, test_data, num_clients, num_classes,
               statistic, niid, balance, partition)
 
 
 if __name__ == "__main__":
-    niid = True if sys.argv[1] == "noniid" else False
-    balance = True if sys.argv[2] == "balance" else False
-    partition = sys.argv[3] if sys.argv[3] != "-" else None
+    niid = True
+    balance = True
+    partition = 'dir'
 
     num_clients = 20
-    num_classes = 10
+    num_classes = 100
 
-    raw_data_path = "fmnist/"
-    dataset_name = 'non_iid'
+    raw_data_path = "cifar10/"
+    dataset_name = 'non_iid4robot'
 
-    generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)
+    generate_cifar100(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)

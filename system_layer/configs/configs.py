@@ -114,6 +114,8 @@ def args_parser():
     parser.add_argument('-s', "--rand_percent", type=int, default=80)
     parser.add_argument('-p', "--layer_idx", type=int, default=2,
                         help="More fine-graind than its original paper.")
+    # SCAFFOLD / FedGH
+    parser.add_argument('-slr', "--server_learning_rate", type=float, default=1.0)
     # GPFL
     parser.add_argument('-lamr', "--lamda_reg", type=float, default=0.0)
     # LLP

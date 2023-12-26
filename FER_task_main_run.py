@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     args = args_parser()
 
-    with open('system_layer/yaml_configs/ex1_config.yaml', encoding='utf-8') as f:
+    with open('system_layer/yaml_configs/FER_ex_config.yaml', encoding='utf-8') as f:
         data_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     # general config settings
