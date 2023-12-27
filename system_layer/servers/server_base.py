@@ -86,7 +86,7 @@ class Server(object):
         self.num_new_clients = args.num_new_clients
         self.new_clients = []
         self.eval_new_clients = False
-        self.fine_tuning_epoch = args.fine_tuning_epoch
+        self.fine_tuning_epoch_new = args.fine_tuning_epoch_new
 
         # logging
         self.logger = args.logger
@@ -404,7 +404,7 @@ class Server(object):
             CEloss = torch.nn.CrossEntropyLoss()
             trainloader = client.load_train_data()
             client.model.train()
-            for e in range(self.fine_tuning_epoch):
+            for e in range(self.fine_tuning_epoch_new):
                 for i, (x, y) in enumerate(trainloader):
                     if type(x) == type([]):
                         x[0] = x[0].to(client.device)
@@ -429,6 +429,8 @@ class Server(object):
             num_samples.append(ns)
 
         ids = [c.id for c in self.new_clients]
+
+        return ids, num_samples, tot_correct, tot_auc
 
     def LLP_aggregate_parameters(self):
         assert (len(self.uploaded_models) > 0)

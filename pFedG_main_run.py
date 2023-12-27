@@ -30,7 +30,7 @@ from system_layer.servers.server_distill import FedDistill
 from system_layer.servers.server_proto import FedProto
 from system_layer.servers.server_local import Local
 # 载入模型
-from algo_layer.models.cnn import FedAvgCNN
+from algo_layer.models.cnn import FedAvgCNN, HARCNN
 from algo_layer.models.model_utils import BaseHeadSplit
 # 配置参数
 from system_layer.configs.gan_config import args_parser, setup_result_saving_path, setup_network_input
@@ -58,6 +58,13 @@ def run(args):
                 args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1024).to(args.device)
             elif "Cifar10" in args.dataset:
                 args.model = FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600).to(args.device)
+        elif model_str == "harcnn":
+            if args.dataset == 'har':
+                args.model = HARCNN(9, dim_hidden=1664, num_classes=args.num_classes,
+                                    conv_kernel_size=(1, 9), pool_kernel_size=(1, 2)).to(args.device)
+            elif args.dataset == 'pamap':
+                args.model = HARCNN(9, dim_hidden=3712, num_classes=args.num_classes,
+                                    conv_kernel_size=(1, 9), pool_kernel_size=(1, 2)).to(args.device)
         elif args.model_name == 'lenet5':
             from algo_layer.models.GAN_modules import Generator
             from algo_layer.models.GAN_modules import Conditional_D as Discriminator
@@ -194,6 +201,9 @@ if __name__ == '__main__':
     args.model_name = general_params['model_name']
     args.join_ratio = general_params['join_ratio']
     args.optimizer = general_params['optimizer']
+    args.local_learning_rate = general_params['local_learning_rate']
+    args.learning_rate_decay = general_params['learning_rate_decay']
+    args.loss_fc = general_params['loss_fc']
     args.batch_size = general_params['batch_size']
     args.local_steps = general_params['local_steps']
     args.train_local_gan = general_params['train_local_gan']

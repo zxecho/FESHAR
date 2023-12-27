@@ -15,6 +15,7 @@ np.random.seed(1)
 # https://github.com/QinbinLi/MOON/blob/6c7a4ed1b1a8c0724fa2976292a667a828e3ff5d/datasets.py#L148
 class ImageFolder_custom(DatasetFolder):
     def __init__(self, root, dataidxs=None, train=True, transform=None, target_transform=None):
+        super(ImageFolder_custom, self).__init__(root=root, transform=transform, target_transform=target_transform)
         self.root = root
         self.dataidxs = dataidxs
         self.train = train

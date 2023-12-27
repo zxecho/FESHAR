@@ -5,14 +5,14 @@ import gc
 from sklearn.model_selection import train_test_split
 from infrastructure_layer.basic_utils import mkdir
 
-batch_size = 64
+batch_size = 10
 train_size = 0.75
 least_samples = int(batch_size / (1 - train_size))
 alpha = 0.1
 
 
 def check(config_path, train_path, test_path, num_clients, num_classes, niid=False,
-          real=True, partition=None):
+          balance=True, partition=None):
     # check existing dataset
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
@@ -20,7 +20,7 @@ def check(config_path, train_path, test_path, num_clients, num_classes, niid=Fal
         if config['num_clients'] == num_clients and \
                 config['num_classes'] == num_classes and \
                 config['non_iid'] == niid and \
-                config['real_world'] == real and \
+                config['balance'] == balance and \
                 config['partition'] == partition and \
                 config['alpha'] == alpha and \
                 config['batch_size'] == batch_size:

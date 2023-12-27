@@ -17,7 +17,6 @@ def args_parser():
     parser.add_argument('-algo', "--algorithm", type=str, default="pfedg")
     parser.add_argument('-mn', "--model_name", type=str, default="lenet5", choices=["lenet5", "resnet18", 'mine'])
     parser.add_argument('-m', "--model", type=object, default=None, help="for model")
-    parser.add_argument('-head', "--head", type=str, default="cnn")
     parser.add_argument('-dev', "--device", type=str, default="cuda:0", choices=["cpu", "cuda"])
     parser.add_argument('-did', "--device_id", type=str, default="0")
 
@@ -88,21 +87,42 @@ def args_parser():
                         help="Number of personalized training steps for pFedMe")
     parser.add_argument('-lrp', "--p_learning_rate", type=float, default=0.01,
                         help="personalized learning rate to caculate theta aproximately using K steps")
+    # FedFomo
+    parser.add_argument('-M', "--M", type=int, default=5,
+                        help="Server only sends M client models to one client at each round")
+    # FedMTL
+    parser.add_argument('-itk', "--itk", type=int, default=4000,
+                        help="The iterations for solving quadratic subproblems")
+    # FedAMP
+    parser.add_argument('-alk', "--alphaK", type=float, default=1.0,
+                        help="lambda/sqrt(GLOABL-ITRATION) according to the paper")
+    parser.add_argument('-sg', "--sigma", type=float, default=1.0)
+    # APFL
+    parser.add_argument('-al', "--alpha", type=float, default=1.0)
+    # MOON
+    parser.add_argument('-tau', "--tau", type=float, default=1.0)
+    # FedBABU
+    parser.add_argument('-fte', "--fine_tuning_epochs", type=int, default=10)
+    # APPLE
+    parser.add_argument('-dlr', "--dr_learning_rate", type=float, default=0.0)
+    parser.add_argument('-L', "--L", type=float, default=1.0)
     # Ditto / FedRep
     parser.add_argument('-pls', "--plocal_epochs", type=int, default=1)
+    # FedGen
+    parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
+    # FedALA
+    parser.add_argument('-et', "--eta", type=float, default=1.0)
+    parser.add_argument('-s', "--rand_percent", type=int, default=80)
+    parser.add_argument('-p', "--layer_idx", type=int, default=2,
+                        help="More fine-graind than its original paper.")
     # 专门用于联邦的生成网络
     parser.add_argument('--global_iter_per_epoch', type=int, default=100,
                         help="the number of iteration per epoch for server training (default: 100)")
-    parser.add_argument('--G_model', type=object, default=None, help="Fed G model")
-    parser.add_argument('--D_model', type=object, default=None, help="Fed D model")
-    parser.add_argument('--C_model', type=object, default=None, help="Fed C model")
-    parser.add_argument('--E_model', type=object, default=None, help="Fed Extractor model")
     parser.add_argument('--gan_server_epochs', type=int, default=200,
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
     parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.0005)
-    parser.add_argument('-lf', "--localize_feature_extractor", type=bool, default=False)
     parser.add_argument('-tlg', "--train_local_gan", type=bool, default=False)
 
     # for network input settings
@@ -130,12 +150,6 @@ def args_parser():
     parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
     parser.add_argument('--n_critic', type=int, default=5, help="WGAN n critic")
     parser.add_argument('--clip_value', type=int, default=0.01, help="WGAN discriminator clip value")
-
-    # FedALA
-    parser.add_argument('-et', "--eta", type=float, default=1.0)
-    parser.add_argument('-s', "--rand_percent", type=int, default=80)
-    parser.add_argument('-p', "--layer_idx", type=int, default=2,
-                        help="More fine-graind than its original paper.")
     # LLP
     parser.add_argument('-llp', "--llp", type=bool, default=True)
     parser.add_argument('-stemc', "--stem_channels", type=int, default=40)

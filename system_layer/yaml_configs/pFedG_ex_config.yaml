@@ -1,14 +1,19 @@
 general_config:
   times: 1
-  model_name: cnn      # pFedG, cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
-  algorithm: FedAvg     # fed_acgan / fedacg_amp / fedcg/ fedzl_gan
+  model_name: cnn     # pFedG, cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
+  algorithm: FedAvg   # fed_acgan / fedcg/ fedzl_gan / FedAvg / FedProx / SCAFFOLD / FedDyn / FedGen /
+                      # PerAvg / Ditto / FedAMP / APFL / APPLE / FedPer / FedRep / FedROD / FedBABU
+                      # FedGH / GPFL / FedDistill / FedProto /
   global_rounds: 50
   join_ratio: 0.25
   # optimization related
+  loss_fc: cross_entropy
   optimizer: Adam      # SGD / AdamW / Adam
+  local_learning_rate: 0.005
   batch_size: 16
   local_steps: 1
   local_per_opt: False
+  learning_rate_decay: False
   lr_scheduler: Exponential
   train_local_gan: False
 # datasets related
