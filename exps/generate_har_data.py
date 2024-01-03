@@ -92,5 +92,5 @@ def load_data_har(data_folder):
 
 if __name__ == "__main__":
     raw_data_path = "har/"
-    dataset_name = 'non_iid4robot'
+    dataset_name = 'non_iid'
     generate_har(raw_data_path, dataset_name)

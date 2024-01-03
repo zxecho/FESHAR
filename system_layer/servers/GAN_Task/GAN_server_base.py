@@ -26,12 +26,6 @@ class GAN_server(Server):
         # self.global_D_model = copy.deepcopy(args.D_model)
         # self.global_model = (self.global_G_model, self.global_D_model)
         self.logger = args.logger
-        self.global_model = nn.ModuleDict()
-        self.global_model["generator"] = copy.deepcopy(args.G_model)
-        self.global_model["discriminator"] = copy.deepcopy(args.D_model)
-        self.global_model["classifier"] = copy.deepcopy(args.C_model)
-        self.global_model["extractor"] = copy.deepcopy(args.E_model)
-
         self.global_model.to(self.device)
 
         self.latent_dim = args.latent_dim

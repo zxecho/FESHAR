@@ -37,7 +37,7 @@ def check(config_path, train_path, test_path, num_clients, num_classes, niid=Fal
     return False
 
 
-def separate_data(data, num_clients, num_classes, niid=False, real=True, partition=None,
+def separate_data_old(data, num_clients, num_classes, niid=False, real=True, partition=None,
                   balance=False, class_per_client=2):
     """
     Split data into two part: training and testing.
@@ -170,7 +170,7 @@ def separate_data(data, num_clients, num_classes, niid=False, real=True, partiti
     return X, y, statistic
 
 
-def separate_data_v2(data, num_clients, num_classes, niid=False, balance=False, partition=None, class_per_client=None):
+def separate_data(data, num_clients, num_classes, niid=False, balance=False, partition=None, class_per_client=None):
     X = [[] for _ in range(num_clients)]
     y = [[] for _ in range(num_clients)]
     statistic = [[] for _ in range(num_clients)]

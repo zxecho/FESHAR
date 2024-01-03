@@ -58,11 +58,11 @@ def run(args):
                 args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1024).to(args.device)
             elif "Cifar10" in args.dataset:
                 args.model = FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600).to(args.device)
-        elif model_str == "harcnn":
-            if args.dataset == 'har':
+        elif args.model_name == "harcnn":
+            if 'har' in args.dataset:
                 args.model = HARCNN(9, dim_hidden=1664, num_classes=args.num_classes,
                                     conv_kernel_size=(1, 9), pool_kernel_size=(1, 2)).to(args.device)
-            elif args.dataset == 'pamap':
+            elif 'pamap' in args.dataset:
                 args.model = HARCNN(9, dim_hidden=3712, num_classes=args.num_classes,
                                     conv_kernel_size=(1, 9), pool_kernel_size=(1, 2)).to(args.device)
         elif args.model_name == 'lenet5':
@@ -219,6 +219,7 @@ if __name__ == '__main__':
     print(run_exps_params)
     for param in run_exps_params:
         args.num_clients = data_configs[param]['num_clients']
+        args.num_classes = data_configs[param]['num_classes']
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']

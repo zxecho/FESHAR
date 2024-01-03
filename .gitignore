@@ -6,3 +6,4 @@ system_layer/servers/GAN_Task/__pycache__/ACGAN_server.cpython-310.pyc
 system_layer/servers/GAN_Task/__pycache__/GAN_server_base.cpython-310.pyc
 /results/
 /models/
+/exps/har/

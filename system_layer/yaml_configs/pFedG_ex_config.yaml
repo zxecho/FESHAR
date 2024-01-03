@@ -1,6 +1,6 @@
 general_config:
   times: 1
-  model_name: cnn     # pFedG, cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
+  model_name: harcnn     # pFedG, cnn, simplenet, ConvNeXt_base, ConvNeXt_attom
   algorithm: FedAvg   # fed_acgan / fedcg/ fedzl_gan / FedAvg / FedProx / SCAFFOLD / FedDyn / FedGen /
                       # PerAvg / Ditto / FedAMP / APFL / APPLE / FedPer / FedRep / FedROD / FedBABU
                       # FedGH / GPFL / FedDistill / FedProto /
@@ -10,7 +10,7 @@ general_config:
   loss_fc: cross_entropy
   optimizer: Adam      # SGD / AdamW / Adam
   local_learning_rate: 0.005
-  batch_size: 16
+  batch_size: 10
   local_steps: 1
   local_per_opt: False
   learning_rate_decay: False
@@ -20,8 +20,15 @@ general_config:
 #cifar10:
 #  dataset: cifar10/
 #  num_clients: 20
-fmnist:
-  dataset: mnist/non_iid(n20nc10d0.1)
+#fmnist:
+#  dataset: mnist/non_iid(n20nc10d0.1)
+#  input_size: 28
+#  input_channels: 1
+#  num_clients: 20
+#  num_classes: 10
+har:
+  dataset: har/non_iid
   input_size: 28
-  input_channels: 1
-  num_clients: 20
+  input_channels: 9
+  num_clients: 30
+  num_classes: 6

@@ -219,7 +219,7 @@ def plot_fed_avg_acc(dataset_name='mnist', FL_param='acc', exp_select='E', inser
 
 
 if __name__ == '__main__':
-    dataset = 'cifar10/non_iid4robot(n20nc10d0.1)'
-    plot_dataset_stats(dataset, mark='train')
+    dataset = 'har/non_iid'
+    plot_dataset_stats(dataset, mark=None)
     # load_FedFER_datastats()
     # plot_fed_avg_acc(dataset_name=dataset, FL_param='loss', exp_select='EKB', insert_zone=True)
