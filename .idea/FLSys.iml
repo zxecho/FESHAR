@@ -3,6 +3,30 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/exps/cifar10" />
+      <excludeFolder url="file://$MODULE_DIR$/exps/mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/models/har" />
+      <excludeFolder url="file://$MODULE_DIR$/models/mnist/non_iid4robot(n20nc10d0.1)" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_FedAMP_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_FedAvg_mnist/non-iid_dir_ex(dir=0.1)_baseline" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_FedCP_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_FedGen_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_FedPer_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_GPFL_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/cnn_fedacg_amp_mnist_test_exp1/bs32lr0.005wd0.0001/fedacg_amp_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/fedZL_GANets_fedzl_gan_mnist_test_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/fedZL_GANets_fedzl_gan_mnist_test_per_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/fedZL_GANets_fedzl_gan_mnist_test_rep_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/harcnn_FedAvg_fmnist_baseline" />
+      <excludeFolder url="file://$MODULE_DIR$/results/harcnn_FedAvg_har_baseline" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_FedCG_mnist_test_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fed_acgan_mnist_test_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fedacg_amp_mnist_test_exp1/bs32lr0.0003wd0.0001/fedacg_amp_mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fedcg_jaffe_exp1/bs32lr0.0003wd0.0001/fedcg_FER" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fedcg_mnist_exp1/bs32lr0.0003wd0.0001" />
+      <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fedzl_gan_mnist_test_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/results/mnist" />
+      <excludeFolder url="file://$MODULE_DIR$/results/pFedG_pfedg_mnist_test_per_exp1" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
