@@ -8,7 +8,7 @@ def args_parser():
     # ============ FL parameters =====================
     # 实验仿真参数
     parser.add_argument('-t', "--times", type=int, default=1, help="Running times")
-    parser.add_argument('--dataset', type=str, default='mnist/non_iid4robot(n20nc10d0.1)',
+    parser.add_argument('--dataset', type=str, default='fmnist/non_iid4robot(n20nc10d0.1)',
                         help="dataset name(oulu, heart_disease, mnist, cifar10)")
     parser.add_argument('--save_folder_name', type=str, default='FedAvg_FER_oulu_ex3-1', help="save folder name")
     parser.add_argument('--save_folder_path', type=str, default='.', help="save folder path")
@@ -39,7 +39,6 @@ def args_parser():
     parser.add_argument('-lplrs', "--local_per_lr_scheduler", type=str, default="Exponential")
 
     parser.add_argument('-lr', "--local_learning_rate", type=float, default=0.005, help="Local learning rate")
-    parser.add_argument('-mlr', "--min_lr", type=float, default=1e-6, help="Local minimal learning rate")
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.995)
     parser.add_argument('-lde', "--lr_decay_every", type=int, default=10)
     parser.add_argument('-ld', "--learning_rate_decay", type=bool, default=False)
@@ -67,7 +66,7 @@ def args_parser():
     parser.add_argument('-dlgg', "--dlg_gap", type=int, default=20)
     parser.add_argument('-bnpc', "--batch_num_per_client", type=int, default=2)
     parser.add_argument('-nnc', "--num_new_clients", type=int, default=0)
-    parser.add_argument('-fte', "--fine_tuning_epoch", type=int, default=0)
+    parser.add_argument('-ften', "--fine_tuning_epoch_new", type=int, default=0)
     # ==========================================
     #  具体相关算法参数设置
     # pFedMe / PerAvg / FedProx / FedAMP / FedPHP

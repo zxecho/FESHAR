@@ -145,4 +145,5 @@ if __name__ == "__main__":
     raw_data_path = "fmnist/"
     dataset_name = 'non_iid'
 
-    generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)
+    # generate_fmnist(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)
+    generate_fmnist4robot(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)

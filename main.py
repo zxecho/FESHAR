@@ -7,7 +7,8 @@ import torch
 # 服务器server
 # 任务服务器模型算法
 # facial expression recognition experiments
-from system_layer.servers.server_fedavg import FedAvg
+# from system_layer.servers.server_fedavg import FedAvg
+from exps.baseline.servers.fedavg_server import FedAvg
 from system_layer.servers.server_dyn import FedDyn
 from system_layer.servers.server_per import FedPer
 from system_layer.servers.server_rep import FedRep
@@ -195,7 +196,7 @@ if __name__ == '__main__':
     if args.dlg_eval:
         print("DLG attack round gap: {}".format(args.dlg_gap))
     print("Total number of new clients: {}".format(args.num_new_clients))
-    print("Fine tuning epoches on new clients: {}".format(args.fine_tuning_epoch))
+    print("Fine tuning epoches on new clients: {}".format(args.fine_tuning_epoch_new))
     print("=" * 50)
 
     # save args
