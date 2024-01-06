@@ -61,6 +61,8 @@ class Client(object):
         # algo related params
         self.layer_idx = args.layer_idx
 
+        self.set_optimization()
+
     def set_optimization(self):
         self.loss = get_loss_function(self.args.loss_fc)
         self.optimizer = get_optimizer(self.args.optimizer, self.model.parameters(), self.learning_rate)

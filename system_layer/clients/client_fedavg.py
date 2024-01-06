@@ -13,8 +13,8 @@ class clientAVG(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
 
-        self.loss = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
+        # self.loss = nn.CrossEntropyLoss()
+        # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
         # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
         # differential privacy
@@ -35,8 +35,6 @@ class clientAVG(Client):
             self.model, self.optimizer, trainloader, privacy_engine = \
                 initialize_dp(self.model, self.optimizer, trainloader, self.dp_sigma)
 
-        start_time = time.time()
-
         max_local_steps = self.local_steps
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
@@ -50,9 +48,10 @@ class clientAVG(Client):
                 y = y.to(self.device)
                 if self.train_slow:
                     time.sleep(0.1 * np.abs(np.random.rand()))
-                self.optimizer.zero_grad()
+
                 output = self.model(x)
                 loss = self.loss(output, y)
+                self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
 

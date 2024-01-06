@@ -27,7 +27,7 @@ class Client(object):
         self.test_samples = test_samples
         self.batch_size = args.batch_size
         self.learning_rate = args.local_learning_rate
-        self.local_epochs = args.local_epochs
+        self.local_epochs = args.local_steps
 
         # check BatchNorm
         self.has_BatchNorm = False

@@ -31,6 +31,21 @@ class GAN_server(Server):
         self.latent_dim = args.latent_dim
         self.gan_server_epochs = args.gan_server_epochs
         self.save_results_path = None
+    def get_params(self, models):
+        params = []
+        for model in models:
+            params.append({"params": self.global_model[model].parameters()})
+
+        return params
+
+    def frozen_net(self, models, frozen):
+        for model in models:
+            for param in self.global_model[model].parameters():
+                param.requires_grad = not frozen
+            if frozen:
+                self.global_model[model].eval()
+            else:
+                self.global_model[model].train()
 
     def send_models(self, modules=None):
         if modules is None:
