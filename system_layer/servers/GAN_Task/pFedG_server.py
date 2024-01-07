@@ -34,6 +34,7 @@ class pFedG_server(GAN_server):
         self.generative_learning_rate_scheduler = torch.optim.lr_scheduler.ExponentialLR(
             optimizer=self.generative_optimizer, gamma=args.learning_rate_decay_gamma)
         self.loss = torch.nn.CrossEntropyLoss()
+        self.GC_criterion = torch.nn.CrossEntropyLoss()
 
         # define the optimizers
         self.GC_optimizer = torch.optim.Adam(self.get_params(["generator", "classifier"]), lr=args.global_learning_rate)
@@ -83,8 +84,8 @@ class pFedG_server(GAN_server):
             # 只有在训练完所有客户端之后，才会计算本地训练准确率
             self.frozen_net(["generator", "classifier"], False)
 
-            # self.train_generator()
-            self.aggregate_parameters_with_KD(i)
+            self.train_generator()
+            # self.aggregate_parameters_with_KD(i)
             self.aggregate_parameters(['extractor'])
 
             self.Budget.append(time.time() - s_t)
@@ -107,7 +108,8 @@ class pFedG_server(GAN_server):
         self.save_global_model()
 
     def train_generator(self):
-        self.global_model['generator'].train()
+        # self.global_model['generator'].train()
+        # self.frozen_net(['generator', 'classifier'], False)
 
         for _ in tqdm(range(self.gan_server_epochs)):
             labels = np.random.choice(self.qualified_labels, self.batch_size)
@@ -124,8 +126,12 @@ class pFedG_server(GAN_server):
                 else:
                     logits += model['classifier'](gen_data) * w
 
+            # Global classifier model loss
+            global_pred = self.global_model['classifier'](gen_data)
+            GC_loss = self.GC_criterion(global_pred, labels)
+
             self.generative_optimizer.zero_grad()
-            loss = self.loss(logits, labels)
+            loss = self.loss(logits, labels) + GC_loss
             loss.backward()
             self.generative_optimizer.step()
 
