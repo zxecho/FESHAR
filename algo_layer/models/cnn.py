@@ -79,7 +79,7 @@ class HARCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=pool_kernel_size, stride=2)
         )
-        self.fc = nn.Sequential(
+        self.head = nn.Sequential(
             nn.Linear(dim_hidden, 1024),
             nn.ReLU(),
             nn.Linear(1024, 512),
@@ -91,7 +91,7 @@ class HARCNN(nn.Module):
         out = self.conv1(x)
         out = self.conv2(out)
         out = torch.flatten(out, 1)
-        out = self.fc(out)
+        out = self.head(out)
         return out
 
 class TextCNN(nn.Module):

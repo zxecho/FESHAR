@@ -118,7 +118,7 @@ def args_parser():
     # 专门用于联邦的生成网络
     parser.add_argument('--global_iter_per_epoch', type=int, default=100,
                         help="the number of iteration per epoch for server training (default: 100)")
-    parser.add_argument('--gan_server_epochs', type=int, default=200,
+    parser.add_argument('--gan_server_epochs', type=int, default=2000,
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
@@ -151,7 +151,7 @@ def args_parser():
     parser.add_argument('--n_critic', type=int, default=5, help="WGAN n critic")
     parser.add_argument('--clip_value', type=int, default=0.01, help="WGAN discriminator clip value")
     # LLP
-    parser.add_argument('-llp', "--llp", type=bool, default=True)
+    parser.add_argument('-llp', "--llp", type=bool, default=False)
     parser.add_argument('-stemc', "--stem_channels", type=int, default=40)
 
     # For the FedCG algo

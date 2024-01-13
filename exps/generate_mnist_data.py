@@ -67,7 +67,7 @@ def generate_mnist(raw_data_path, dataset_name, num_clients, num_classes, niid=F
                                     niid, balance, partition, class_per_client=2)
     train_data, test_data = split_data(X, y)
     save_file(config_path, train_path, test_path, train_data, test_data, num_clients, num_classes,
-              statistic, niid, real, partition)
+              statistic, niid, balance, partition)
 
 
 def generate_mnist4robot(raw_data_path, dataset_name, num_clients, num_classes, niid=False, balance=True, partition=None):

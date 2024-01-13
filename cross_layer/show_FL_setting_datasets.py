@@ -219,7 +219,7 @@ def plot_fed_avg_acc(dataset_name='mnist', FL_param='acc', exp_select='E', inser
 
 
 if __name__ == '__main__':
-    dataset = 'har/non_iid'
+    dataset = 'fer2013/non_iid(n20nc7d0.1)'
     plot_dataset_stats(dataset, mark=None)
     # load_FedFER_datastats()
     # plot_fed_avg_acc(dataset_name=dataset, FL_param='loss', exp_select='EKB', insert_zone=True)

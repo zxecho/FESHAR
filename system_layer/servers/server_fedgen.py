@@ -46,7 +46,7 @@ class FedGen(Server):
         for client in self.clients:
             client.qualified_labels = self.qualified_labels
 
-        self.server_epochs = args.server_epochs
+        self.server_epochs = args.gan_server_epochs
         self.localize_feature_extractor = args.localize_feature_extractor
         if self.localize_feature_extractor:
             self.global_model = copy.deepcopy(args.model.head)

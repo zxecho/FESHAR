@@ -67,7 +67,7 @@ def generate_cifar10(raw_data_path, dataset_name, num_clients, num_classes, niid
               statistic, niid, real, partition)
 
 
-def generate_cifar4robot(raw_data_path, dataset_name, num_clients, num_classes, niid=False, real=True, partition=None):
+def generate_cifar4robot(raw_data_path, dataset_name, num_clients, num_classes, niid=False, balance=False, partition=None):
     dir_path = raw_data_path + dataset_name + "/"
     # Setup directory for train/test data
     config_path = dir_path + "config.json"
@@ -108,11 +108,11 @@ def generate_cifar4robot(raw_data_path, dataset_name, num_clients, num_classes, 
     test_dataset_label = testset.targets.cpu().detach().numpy()
 
     # for training dataset
-    train_X, train_y, train_statistic = separate_data((train_dataset_image, train_dataset_label), num_clients, num_classes,
-                                    niid, real, partition, balance=True)
+    train_X, train_y, train_statistic = separate_data((train_dataset_image, train_dataset_label), num_clients,
+                                                      num_classes, niid, balance, partition, class_per_client=2)
     # for test dataset
-    test_X, test_y, test_statistic = separate_data((test_dataset_image, test_dataset_label), num_clients, num_classes,
-                                    niid=False, real=False, partition=None, balance=True)
+    test_X, test_y, test_statistic = separate_data((test_dataset_image, test_dataset_label), num_clients,
+                                                   num_classes, niid=False, balance=True, partition=None, class_per_client=2)
 
     def split_each_data(X_train, y_train, X_test, y_test):
         # Split dataset
@@ -140,11 +140,11 @@ def generate_cifar4robot(raw_data_path, dataset_name, num_clients, num_classes, 
 
     # save train dataset and config
     save_each_file(config_path, train_path, train_data, num_clients, num_classes, train_statistic,
-                   niid, real, partition, 'train')
+                   niid, balance, partition, 'train')
 
     # save test dataset and config
     save_each_file(config_path, test_path, test_data, num_clients, num_classes, test_statistic,
-                   niid, real, partition, 'test')
+                   niid, balance, partition, 'test')
 
 
 if __name__ == "__main__":
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     # partition = sys.argv[3] if sys.argv[3] != "-" else None
     #
     niid = True
-    real = True
+    balance = False
     partition = 'dir'
 
     num_clients = 20
@@ -162,6 +162,6 @@ if __name__ == "__main__":
 
     dataset_name = 'non_iid4robot'
 
-    generate_cifar10(raw_data_path, dataset_name, num_clients, num_classes, niid, real, partition)
+    generate_cifar10(raw_data_path, dataset_name, num_clients, num_classes, niid, balance, partition)
     # generate_cifar4robot(raw_data_path, dataset_name, num_clients, num_classes, niid, real, partition)
 

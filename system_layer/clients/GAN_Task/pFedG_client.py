@@ -94,7 +94,7 @@ class pFedG_Clinet(GAN_client):
         self.frozen_net(["generator", "discriminator"], True)
 
         # training local classifier with Generator
-        self.train_local_C_with_G()
+        self.train_local_C_with_G(current_round)
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
@@ -106,7 +106,7 @@ class pFedG_Clinet(GAN_client):
             eps, DELTA = get_dp_params(privacy_engine)
             print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")
 
-    def train_local_C_with_G(self):
+    def train_local_C_with_G(self, current_round):
         self.model.train()
 
         start_time = time.time()
@@ -114,6 +114,9 @@ class pFedG_Clinet(GAN_client):
         max_local_epochs = self.local_steps
         if self.train_slow:
             max_local_epochs = np.random.randint(1, max_local_epochs // 2)
+        # 生成器的损失函数权重
+        p = min(current_round / 10, 1.)
+        gamma = 2 / (1 + np.exp(-10 * p)) - 1
 
         for step in tqdm(range(max_local_epochs)):
             for i, (x, y) in enumerate(self.trainloader):
@@ -131,7 +134,7 @@ class pFedG_Clinet(GAN_client):
                 labels = np.random.choice(self.qualified_labels, self.batch_size)
                 labels = torch.LongTensor(labels).to(self.device)
                 z = self.model['generator'](labels)
-                loss += self.loss(self.model['classifier'](z), labels)
+                loss += gamma * self.loss(self.model['classifier'](z), labels)
 
                 self.optimizer.zero_grad()
                 loss.backward()

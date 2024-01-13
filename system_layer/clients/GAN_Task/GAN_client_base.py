@@ -34,9 +34,9 @@ class GAN_client(Client):
         self.g_learning_rate = args.local_g_lr
         self.d_learning_rate = args.local_d_lr
 
-        self.set_optimization()
+        self.set_GAN_optimization()
 
-    def set_optimization(self):
+    def set_GAN_optimization(self):
         self.loss = get_loss_function(self.args.loss_fc)
         self.g_optimizer = get_optimizer(self.args.local_g_optimizer, self.model['generator'].parameters(), self.g_learning_rate)
         self.d_optimizer = get_optimizer(self.args.local_d_optimizer, self.model['discriminator'].parameters(), self.d_learning_rate)

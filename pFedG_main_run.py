@@ -58,6 +58,8 @@ def run(args):
                 args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1024).to(args.device)
             elif "Cifar10" in args.dataset:
                 args.model = FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600).to(args.device)
+            elif "fer" in args.dataset:
+                args.model = FedAvgCNN(in_features=1, num_classes=args.num_classes, dim=1600).to(args.device)
         elif args.model_name == "harcnn":
             if 'har' in args.dataset:
                 args.model = HARCNN(9, dim_hidden=1664, num_classes=args.num_classes,
@@ -87,9 +89,20 @@ def run(args):
             args.model['discriminator'] = Discriminator(num_classes=args.num_classes,
                                                         feature_size=args.feature_size,
                                                         feature_num=args.feature_dim)
-            args.model['classifier'] = Classifier(num_classes=args.num_classes)
-            args.model['extractor'] = Extractor(image_channel=args.image_channel, feature_in_dim=1024,
-                                                feature_out_dim=args.feature_dim)
+
+            if "mnist" in args.dataset:
+                args.model['classifier'] = Classifier(num_classes=args.num_classes)
+                args.model['extractor'] = Extractor(image_channel=args.image_channel, feature_in_dim=1024,
+                                                    feature_out_dim=args.feature_dim)
+            elif "cifar10" in args.dataset:
+                args.model['classifier'] = Classifier(num_classes=args.num_classes)
+                args.model['extractor'] = Extractor(image_channel=args.input_channels, feature_in_dim=1600,
+                                                    feature_out_dim=args.feature_dim)
+            elif "har" in args.dataset:
+                from algo_layer.models.GAN_models.HAR_cnn import Extractor, Classifier
+                args.model['classifier'] = Classifier(dim_hidden=1664, num_classes=args.num_classes)
+                args.model['extractor'] = Extractor(in_channels=args.input_channels,
+                                                    conv_kernel_size=(1, 9), pool_kernel_size=(1, 2))
 
         # 选择算法
         if args.algorithm == 'FedAvg':

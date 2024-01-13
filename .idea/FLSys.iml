@@ -27,6 +27,7 @@
       <excludeFolder url="file://$MODULE_DIR$/results/lenet5_fedzl_gan_mnist_test_exp1" />
       <excludeFolder url="file://$MODULE_DIR$/results/mnist" />
       <excludeFolder url="file://$MODULE_DIR$/results/pFedG_pfedg_mnist_test_per_exp1" />
+      <excludeFolder url="file://$MODULE_DIR$/exps/fer2013" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -120,6 +120,7 @@ class Client(object):
                     x = x.to(self.device)
                 y = y.to(self.device)
                 output = self.model(x)
+                output = torch.where(torch.isnan(output), torch.zeros_like(output), output)
 
                 test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
                 test_num += y.shape[0]

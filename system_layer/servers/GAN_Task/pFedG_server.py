@@ -61,7 +61,7 @@ class pFedG_server(GAN_server):
         for i in range(self.global_rounds + 1):
             s_t = time.time()
             self.selected_clients = self.select_clients()
-            self.send_models(['extractor', 'generator'])
+            self.send_models(['extractor', 'classifier', 'generator'])
 
             if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
