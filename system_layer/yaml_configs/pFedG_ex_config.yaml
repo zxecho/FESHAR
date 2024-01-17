@@ -4,12 +4,12 @@ general_config:
   algorithm: pfedg   # pfedg / fed_acgan / fedcg/ fedzl_gan / FedAvg / FedProx / SCAFFOLD / FedDyn / FedGen /
                       # PerAvg / Ditto / FedAMP / APFL / APPLE / FedPer / FedRep / FedROD / FedBABU
                       # FedGH / GPFL / FedDistill / FedProto /
-  global_rounds: 50
+  global_rounds: 100
   join_ratio: 1.0
   # optimization related
   loss_fc: cross_entropy
   optimizer: SGD      # SGD / AdamW / Adam
-  local_learning_rate: 0.001
+  local_learning_rate: 0.005
   batch_size: 10
   local_steps: 1
   local_per_opt: False

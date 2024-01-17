@@ -116,13 +116,11 @@ def args_parser():
     parser.add_argument('-p', "--layer_idx", type=int, default=2,
                         help="More fine-graind than its original paper.")
     # 专门用于联邦的生成网络
-    parser.add_argument('--global_iter_per_epoch', type=int, default=100,
-                        help="the number of iteration per epoch for server training (default: 100)")
-    parser.add_argument('--gan_server_epochs', type=int, default=2000,
+    parser.add_argument('--gan_server_epochs', type=int, default=200,
                         help="the epochs for server's gan training (default: 20)")
     parser.add_argument('--gan_client_epoch', type=int, default=20,
                         help="the epochs for clients' local gan training (default: 20)")
-    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.0005)
+    parser.add_argument('-gen_lr', "--generator_learning_rate", type=float, default=0.005)
     parser.add_argument('-tlg', "--train_local_gan", type=bool, default=False)
 
     # for network input settings
@@ -160,6 +158,12 @@ def args_parser():
     parser.add_argument('--add_noise', dest='add_noise', action='store_true', default=False,
                         help="whether adding noise to image")
     parser.add_argument('--distance', type=str, default="none", choices=["none", "mse", "cos"])
+
+    # pFedG
+    parser.add_argument('--global_c_epoch', type=int, default=100,
+                        help="the number of iteration per epoch for server training (default: 100)")
+    parser.add_argument('--global_c_lr', type=float, default=0.005,
+                        help="the number of iteration per epoch for server training (default: 100)")
 
     args = parser.parse_args()
 

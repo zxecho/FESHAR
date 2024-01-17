@@ -28,9 +28,8 @@ class pFedG_server(GAN_server):
         self.global_model.to(self.device)
         # ============ optimizer of server generator ==================
         self.generative_optimizer = torch.optim.AdamW(
-            params=self.global_model['generator'].parameters(),
-            lr=args.generator_learning_rate, betas=(0.9, 0.999),
-            eps=1e-08, weight_decay=0, amsgrad=False)
+            params=self.global_model['generator'].parameters(), lr=args.generator_learning_rate)
+
         self.generative_learning_rate_scheduler = torch.optim.lr_scheduler.ExponentialLR(
             optimizer=self.generative_optimizer, gamma=args.learning_rate_decay_gamma)
         self.loss = torch.nn.CrossEntropyLoss()
@@ -109,7 +108,6 @@ class pFedG_server(GAN_server):
 
     def train_generator(self):
         # self.global_model['generator'].train()
-        # self.frozen_net(['generator', 'classifier'], False)
 
         for _ in tqdm(range(self.gan_server_epochs)):
             labels = np.random.choice(self.qualified_labels, self.batch_size)
@@ -136,6 +134,7 @@ class pFedG_server(GAN_server):
             self.generative_optimizer.step()
 
         self.generative_learning_rate_scheduler.step()
+
     def aggregate_parameters_with_KD(self, current_round):
         # 统计loss
         self.distill_loss_meter.reset()

@@ -236,7 +236,7 @@ if __name__ == '__main__':
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_{}_baseline'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_{}_test'.format(args.model_name, args.algorithm, param)
 
         # initial network input
         setup_network_input(args)

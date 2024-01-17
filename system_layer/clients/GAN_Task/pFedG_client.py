@@ -38,7 +38,7 @@ class pFedG_Clinet(GAN_client):
 
         # self.frozen_net(modules=["extractor", "classifier", "generator", "discriminator"], frozen=True)
 
-        self.optimizer = torch.optim.AdamW(self.get_params(["classifier", "extractor"]), lr=args.local_learning_rate)
+        self.optimizer = torch.optim.AdamW(self.get_params(["extractor", 'classifier']), lr=args.local_learning_rate)
 
         self.sample_per_class = torch.zeros(self.num_classes)
         for x, y in self.trainloader:
@@ -90,9 +90,6 @@ class pFedG_Clinet(GAN_client):
 
         data_length = len(self.trainloader)
 
-        # 使用进度条代替循环, 训练本地的GAN模型
-        self.frozen_net(["generator", "discriminator"], True)
-
         # training local classifier with Generator
         self.train_local_C_with_G(current_round)
 
@@ -107,13 +104,14 @@ class pFedG_Clinet(GAN_client):
             print(f"Client {self.id}", f"epsilon = {eps:.2f}, sigma = {DELTA}")
 
     def train_local_C_with_G(self, current_round):
-        self.model.train()
-
+        # 冻结生成器，判别器参数
+        self.frozen_net(["generator", "discriminator"], True)
         start_time = time.time()
 
         max_local_epochs = self.local_steps
         if self.train_slow:
             max_local_epochs = np.random.randint(1, max_local_epochs // 2)
+
         # 生成器的损失函数权重
         p = min(current_round / 10, 1.)
         gamma = 2 / (1 + np.exp(-10 * p)) - 1
