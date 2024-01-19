@@ -4,7 +4,7 @@ general_config:
   algorithm: pfedg   # pfedg / fed_acgan / fedcg/ fedzl_gan / FedAvg / FedProx / SCAFFOLD / FedDyn / FedGen /
                       # PerAvg / Ditto / FedAMP / APFL / APPLE / FedPer / FedRep / FedROD / FedBABU
                       # FedGH / GPFL / FedDistill / FedProto /
-  global_rounds: 100
+  global_rounds: 200
   join_ratio: 1.0
   # optimization related
   loss_fc: cross_entropy
@@ -17,12 +17,12 @@ general_config:
   lr_scheduler: Exponential
   train_local_gan: False
 # datasets related
-cifar10:
-  dataset: cifar10/non_iid4robot(n20nc10d0.1)
-  num_clients: 20
-  num_classes: 10
-  input_channels: 3
-  input_size: 32
+#cifar10:
+#  dataset: cifar10/non_iid4robot(n20nc10d0.1)
+#  num_clients: 20
+#  num_classes: 10
+#  input_channels: 3
+#  input_size: 32
 #fmnist:
 #  dataset: mnist/non_iid(n20nc10d0.1)
 #  input_size: 28
@@ -35,9 +35,9 @@ cifar10:
 #  input_channels: 9
 #  num_clients: 30
 #  num_classes: 6
-#fer:
-#  dataset: fer2013/non_iid(n20nc7d0.1)
-#  num_clients: 20
-#  num_classes: 7
-#  input_channels: 1
-#  input_size: 32
+fer2013:
+  dataset: fer2013/non_iid4robot(n20nc7d0.1)
+  num_clients: 20
+  num_classes: 7
+  input_channels: 1
+  input_size: 32

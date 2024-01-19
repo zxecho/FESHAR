@@ -98,6 +98,10 @@ def run(args):
                 args.model['classifier'] = Classifier(num_classes=args.num_classes)
                 args.model['extractor'] = Extractor(image_channel=args.input_channels, feature_in_dim=1600,
                                                     feature_out_dim=args.feature_dim)
+            elif "fer2013" in args.dataset:
+                args.model['classifier'] = Classifier(num_classes=args.num_classes)
+                args.model['extractor'] = Extractor(image_channel=args.input_channels, feature_in_dim=1600,
+                                                    feature_out_dim=args.feature_dim)
             elif "har" in args.dataset:
                 from algo_layer.models.GAN_models.HAR_cnn import Extractor, Classifier
                 args.model['classifier'] = Classifier(dim_hidden=1664, num_classes=args.num_classes)
@@ -236,7 +240,7 @@ if __name__ == '__main__':
         args.input_size = data_configs[param]['input_size']
         args.input_channels = data_configs[param]['input_channels']
         args.dataset = data_configs[param]['dataset']
-        args.save_folder_name = '{}_{}_{}_test'.format(args.model_name, args.algorithm, param)
+        args.save_folder_name = '{}_{}_{}_test2'.format(args.model_name, args.algorithm, param)
 
         # initial network input
         setup_network_input(args)

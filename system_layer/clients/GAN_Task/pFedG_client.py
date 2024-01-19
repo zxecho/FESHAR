@@ -38,7 +38,7 @@ class pFedG_Clinet(GAN_client):
 
         # self.frozen_net(modules=["extractor", "classifier", "generator", "discriminator"], frozen=True)
 
-        self.optimizer = torch.optim.AdamW(self.get_params(["extractor", 'classifier']), lr=args.local_learning_rate)
+        self.optimizer = torch.optim.AdamW(self.get_params(["extractor"]), lr=args.local_learning_rate)
 
         self.sample_per_class = torch.zeros(self.num_classes)
         for x, y in self.trainloader:
@@ -113,7 +113,7 @@ class pFedG_Clinet(GAN_client):
             max_local_epochs = np.random.randint(1, max_local_epochs // 2)
 
         # 生成器的损失函数权重
-        p = min(current_round / 10, 1.)
+        p = min(current_round / 20, 1.)
         gamma = 2 / (1 + np.exp(-10 * p)) - 1
 
         for step in tqdm(range(max_local_epochs)):
